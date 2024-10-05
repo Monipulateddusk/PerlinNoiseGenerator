@@ -15,6 +15,7 @@ Transform transform;
 
 MainGame::MainGame()
 {
+	counter = 0;
 	_gameState = GameState::PLAY;
 	Display* _gameDisplay = new Display(); //new display
 }
