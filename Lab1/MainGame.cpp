@@ -69,6 +69,19 @@ void MainGame::processInput()
 			case SDL_QUIT:
 				_gameState = GameState::EXIT;
 				break;
+
+			case SDL_KEYUP:
+				switch (evnt.key.keysym.sym) {
+				case SDLK_s:
+					// Switch between the different shaders
+
+
+					break;
+
+				default:
+					break;
+				}
+				break;
 		}
 	}
 	
