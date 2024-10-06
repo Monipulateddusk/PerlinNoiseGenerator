@@ -41,6 +41,7 @@ private:
 
 
 	float counter;
+	bool isADSEnabled;
 
 
 };

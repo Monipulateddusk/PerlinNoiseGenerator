@@ -15,7 +15,7 @@ Transform transform;
 
 MainGame::MainGame()
 {
-	counter = 0;
+	counter = 0; isADSEnabled = false;
 	_gameState = GameState::PLAY;
 	Display* _gameDisplay = new Display(); //new display
 }
@@ -38,10 +38,9 @@ void MainGame::initSystems()
 	mesh2.loadModel("..\\res\\monkey3.obj");
 	
 	ADS.init("..\\res\\ADS.vert", "..\\res\\ADS.frag");
+	shader.init("..\\res\\shader.vert", "..\\res\\shader.frag");
 
 	texture.init("..\\res\\bricks.jpg"); //
-	shader.init("..\\res\\shader.vert", "..\\res\\shader.frag"); //new shader
-
 	myCamera.initCamera(glm::vec3(0, 0, -30), 70.0f, (float)_gameDisplay.getWidth()/_gameDisplay.getHeight(), 0.01f, 1000.0f);
 	counter = 0.0f;
 }
@@ -74,7 +73,7 @@ void MainGame::processInput()
 				switch (evnt.key.keysym.sym) {
 				case SDLK_s:
 					// Switch between the different shaders
-
+					isADSEnabled = !isADSEnabled;
 
 					break;
 
@@ -98,14 +97,17 @@ void MainGame::linkADS()
 {
 	glm::vec3 lightPos(20.f, 20.f, 20.f);
 	glm::vec3 lightColour(1.f, 1.f, 1.f);
-	glm::vec3 objColour(1.f, 0, 0);
-
-	ADS.setMat4("model", transform.GetModel());
-
+	glm::vec3 objColour(1.f, 1, 1);
 
 	ADS.setVec3("lightPos", lightPos);
 	ADS.setVec3("lightColour", lightColour);
 	ADS.setVec3("objectColour", objColour);
+	ADS.setVec3("viewPosition", myCamera.getPos());
+
+	glm::mat4 modelMatrix = transform.GetModel();
+
+	ADS.setMat4("model", modelMatrix);
+
 }
 
 
@@ -118,9 +120,17 @@ void MainGame::drawGame()
 	transform.SetRot(glm::vec3(0.0,counter * 2, 0.0));
 	transform.SetScale(glm::vec3(1.0, 1.0, 1.0));
 
-	ADS.Bind();
-	linkADS();
-	ADS.Update(transform, myCamera);
+	if (isADSEnabled) {
+		ADS.Bind();
+		ADS.Update(transform, myCamera);
+		linkADS();
+
+	}
+	else {
+		shader.Bind();
+		shader.Update(transform, myCamera);
+	}
+
 	texture.Bind(0);
 	mesh2.draw();
 	counter = counter + 0.01f;
