@@ -2,6 +2,7 @@
 
 // Inputs 
 layout (location = 0) in vec3 VertexPosition; // Vertex Pos
+layout (location = 1) in vec2 TexCoord;
 layout (location = 2) in vec3 VertexNormal; // Vertex normals
 
 // Uniforms (imported values from CPU)
@@ -11,6 +12,7 @@ uniform mat4 model; // Model matrix
 // Outputs to Frag shader (NAMES DON'T MATTER, ONLY DATA TYPE)
 out vec3 FragPos; // Fragment pos in world space
 out vec3 Normal; // Transformed normal (used for lighting)
+out vec2 TextureCoord;
 
 void main()
 {
@@ -18,5 +20,6 @@ void main()
     Normal = mat3(transpose(inverse(model))) * VertexNormal;
 
     gl_Position = transform * vec4(VertexPosition, 1);
+    TextureCoord = TexCoord;
 
 }

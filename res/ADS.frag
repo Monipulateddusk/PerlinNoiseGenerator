@@ -2,6 +2,7 @@
 
 // Inputs from vertex shader
 in vec3 FragPos;
+in vec2 TextureCoord;
 in vec3 Normal;
 
 // Uniforms (inputs from CPU)
@@ -36,6 +37,12 @@ void main(){
 
 	// Setting the output doing specular lighting
 	vec3 resultLight = (ambientLight + diffuseLight + specularLight) * objectColour;
-	FragColour = vec4(resultLight, 1.0);
+
+	// Calculating the texture
+	vec4 tex = texture(diffuse, TextureCoord);
+
+	// Applying the texure to the lighting system
+	FragColour = vec4(resultLight, 1.0) + tex;
+
 
 }
