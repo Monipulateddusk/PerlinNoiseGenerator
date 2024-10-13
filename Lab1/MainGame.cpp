@@ -40,9 +40,16 @@ void MainGame::initSystems()
 	ADS.init("..\\res\\ADS.vert", "..\\res\\ADS.frag");
 	shader.init("..\\res\\shader.vert", "..\\res\\shader.frag");
 
-	texture.init("..\\res\\bricks.jpg"); //
+	texture.init("..\\res\\bricks.jpg"); 
 	myCamera.initCamera(glm::vec3(0, 0, -30), 70.0f, (float)_gameDisplay.getWidth()/_gameDisplay.getHeight(), 0.01f, 1000.0f);
+
+	vector<string> skyboxPaths({ "..\\res\\SkyboxTextures\\right.jpg" ,"..\\res\\SkyboxTextures\\left.jpg" ,"..\\res\\SkyboxTextures\\top.jpg",
+									"..\\res\\SkyboxTextures\\bottom.jpg" ,"..\\res\\SkyboxTextures\\front.jpg" ,"..\\res\\SkyboxTextures\\back.jpg" });
+
+	skybox.init(skyboxPaths);
 	counter = 0.0f;
+
+	SDL_SetRelativeMouseMode(SDL_TRUE);
 }
 
 void MainGame::gameLoop()
@@ -76,10 +83,19 @@ void MainGame::processInput()
 					isADSEnabled = !isADSEnabled;
 
 					break;
-
+				case SDLK_ESCAPE:
+					_gameState = GameState::EXIT;
 				default:
 					break;
 				}
+			break;
+
+			// Mouse input
+			case SDL_MOUSEMOTION:
+				float xRel = evnt.motion.xrel, yRel = evnt.motion.yrel;
+				myCamera.Pitch(yRel / 1000);
+				myCamera.Yaw(-xRel / 1000);
+
 				break;
 		}
 	}
@@ -97,7 +113,7 @@ void MainGame::linkADS()
 {
 	glm::vec3 lightPos(20.f, 20.f, 20.f);
 	glm::vec3 lightColour(1.f, 1.f, 1.f);
-	glm::vec3 objColour(1.f, 1, 1);
+	glm::vec3 objColour(1.f, 1.f, 1.f);
 
 	ADS.setVec3("lightPos", lightPos);
 	ADS.setVec3("lightColour", lightColour);
@@ -116,7 +132,9 @@ void MainGame::drawGame()
 {
 	_gameDisplay.clearDisplay(0.0f, 0.0f, 0.0f, 1.0f);
 	
-	transform.SetPos(glm::vec3(0.0,0.0, 0.0));
+	skybox.draw(&myCamera);
+
+	transform.SetPos(glm::vec3(0.0,0.0, -20.0));
 	transform.SetRot(glm::vec3(0.0,counter * 2, 0.0));
 	transform.SetScale(glm::vec3(1.0, 1.0, 1.0));
 

@@ -6,6 +6,7 @@
 #include "Mesh.h"
 #include "Texture.h"
 #include "transform.h"
+#include "Skybox.h"
 
 enum class GameState{PLAY, EXIT};
 
@@ -38,7 +39,7 @@ private:
 	Texture texture; 
 	Shader shader;
 	Shader ADS; 
-
+	Skybox skybox;
 
 	float counter;
 	bool isADSEnabled;

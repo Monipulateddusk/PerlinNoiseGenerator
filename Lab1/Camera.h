@@ -39,6 +39,19 @@ public:
 		return glm::lookAt(pos, pos + forward, up);
 	}
 
+	// remove the last row of the matrix to be 0,0,0,1
+	inline glm::mat4 getViewNullTranslation() const 
+	{
+		glm::mat4 viewMat = glm::lookAt(pos, pos + forward, up);
+		
+		// Removing translation
+		viewMat[3][0] = 0;
+		viewMat[3][1] = 0;
+		viewMat[3][2] = 0;
+		viewMat[3][3] = 1;
+		return viewMat;
+	}
+
 	void MoveForward(float amt)
 	{
 		pos += -forward * amt;
@@ -87,7 +100,7 @@ public:
 		up = glm::normalize(glm::cross(forward, right));
 	}
 
-	void RotateY(float angle)
+	void Yaw(float angle)
 	{
 		static const glm::vec3 UP(0.0f, 1.0f, 0.0f);
 
