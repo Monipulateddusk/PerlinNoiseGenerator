@@ -26,6 +26,7 @@ private:
 	void gameLoop();
 
 	void linkADS();
+	void linkGeoShader();
 
 	void drawGame();
 
@@ -39,6 +40,7 @@ private:
 	Texture texture; 
 	Shader shader;
 	Shader ADS; 
+	Shader geomShader;
 	Skybox skybox;
 
 	float counter;

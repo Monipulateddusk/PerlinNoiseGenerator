@@ -60,7 +60,7 @@ void Skybox::init(vector<string> faces)
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 
-	shader.init("..\\res\\shaderSkybox.vert", "..\\res\\shaderSkybox.frag");
+	shader.init("..\\res\\shaderSkybox.vert", "..\\res\\shaderSkybox.frag", "");
 	shader.setInt("skybox", 0);
 
 	glGenTextures(1, &textureID);

@@ -9,11 +9,11 @@
 class Shader
 {
 public:
-	Shader();
+	Shader() : shaderID(0), shaders{0}, shaders1{0}, uniforms{0} {}
 
-	void Bind(); //Set gpu to use our shaders
-	void Update(const Transform& transform, const Camera& camera);
-	void init(const std::string& vertFile, const std::string& fragFile);
+	void Bind() const; //Set gpu to use our shaders
+	void Update(const Transform& transform, const Camera& camera) const;
+	void init(const std::string& vertFile = "", const std::string& fragFile = "", const std::string& geomFile ="");
 	void initGeo();
 
 	std::string Shader::LoadShader(const std::string& fileName);
@@ -157,7 +157,7 @@ public:
 
 protected:
 private:
-	static const unsigned int NUM_SHADERS = 2; // number of shaders
+	static const unsigned int NUM_SHADERS = 3; // number of shaders
 
 	enum
 	{

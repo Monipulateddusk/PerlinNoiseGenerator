@@ -37,8 +37,9 @@ void MainGame::initSystems()
 	//mesh1.init(vertices, sizeof(vertices) / sizeof(vertices[0]), indices, sizeof(indices) / sizeof(indices[0])); //size calcuated by number of bytes of an array / no bytes of one element
 	mesh2.loadModel("..\\res\\monkey3.obj");
 	
-	ADS.init("..\\res\\ADS.vert", "..\\res\\ADS.frag");
-	shader.init("..\\res\\shader.vert", "..\\res\\shader.frag");
+	ADS.init("..\\res\\ADS.vert", "..\\res\\ADS.frag", "");
+	shader.init("..\\res\\shader.vert", "..\\res\\shader.frag", "");
+	geomShader.init("..\\res\\shaderGeoText.vert", "..\\res\\shaderGeoText.frag", "..\\res\\shaderGeoText.geom");
 
 	texture.init("..\\res\\bricks.jpg"); 
 	myCamera.initCamera(glm::vec3(0, 0, -30), 70.0f, (float)_gameDisplay.getWidth()/_gameDisplay.getHeight(), 0.01f, 1000.0f);
@@ -126,6 +127,20 @@ void MainGame::linkADS()
 
 }
 
+void MainGame::linkGeoShader()
+{
+	float randColX = (float)std::rand() / RAND_MAX;
+	float randColY = (float)std::rand() / RAND_MAX;
+	float randColZ = (float)std::rand() / RAND_MAX;
+
+	geomShader.setFloat("randColourX", randColX);
+	geomShader.setFloat("randColourY", randColY);
+	geomShader.setFloat("randColourZ", randColZ);
+
+	geomShader.setFloat("time", counter);
+
+}
+
 
 
 void MainGame::drawGame()
@@ -145,8 +160,9 @@ void MainGame::drawGame()
 
 	}
 	else {
-		shader.Bind();
-		shader.Update(transform, myCamera);
+		geomShader.Bind();
+		geomShader.Update(transform, myCamera);
+		linkGeoShader();
 	}
 
 	texture.Bind(0);

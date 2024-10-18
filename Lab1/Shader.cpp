@@ -1,15 +1,17 @@
 #include "Shader.h"
 
-Shader::Shader()
-{
-}
-
-void Shader::init(const std::string& vertFile, const std::string& fragFile)
+void Shader::init(const std::string& vertFile, const std::string& fragFile, const std::string& geomFile)
 {
 	shaderID = glCreateProgram(); // create shader program (openGL saves as ref number)
-	shaders[0] = CreateShader(LoadShader(vertFile), GL_VERTEX_SHADER); // create vertex shader
-	shaders[1] = CreateShader(LoadShader(fragFile), GL_FRAGMENT_SHADER); // create fragment shader
-
+	if (!vertFile.empty()) {
+		shaders[0] = CreateShader(LoadShader(vertFile), GL_VERTEX_SHADER); // create vertex shader
+	}
+	if (!fragFile.empty()) {
+		shaders[1] = CreateShader(LoadShader(fragFile), GL_FRAGMENT_SHADER); // create fragment shader
+	}
+	if (!geomFile.empty()) {
+		shaders[2] = CreateShader(LoadShader(geomFile), GL_GEOMETRY_SHADER); // Create geometry shader
+	}
 	for (unsigned int i = 0; i < NUM_SHADERS; i++)
 	{
 		glAttachShader(shaderID, shaders[i]); //add all our shaders to the shader program "shaders" 
@@ -67,12 +69,12 @@ Shader::~Shader()
 	glDeleteProgram(shaderID); // delete the program
 }
 
-void Shader::Bind()
+void Shader::Bind() const
 {
 	glUseProgram(shaderID); //installs the program object specified by program as part of rendering state
 }
 
-void Shader::Update(const Transform& transform, const Camera& camera)
+void Shader::Update(const Transform& transform, const Camera& camera) const
 {
 	glm::mat4 mvp = camera.getViewProjection() * transform.GetModel();
 	glUniformMatrix4fv(uniforms[TRANSFORM_U], 1, GLU_FALSE, &mvp[0][0]);
