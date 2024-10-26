@@ -27,6 +27,7 @@ private:
 
 	void linkADS();
 	void linkGeoShader();
+	void linkEnviroMapping();
 
 	void drawGame();
 
@@ -41,6 +42,7 @@ private:
 	Shader shader;
 	Shader ADS; 
 	Shader geomShader;
+	Shader enviroMappingShader;
 	Skybox skybox;
 
 	float counter;

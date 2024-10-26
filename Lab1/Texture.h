@@ -12,6 +12,7 @@ public:
 
 	~Texture();
 
+	inline GLuint ID() const { return textureHandler; }
 protected:
 private:
 

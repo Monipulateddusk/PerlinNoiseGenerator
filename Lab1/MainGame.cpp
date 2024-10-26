@@ -40,6 +40,7 @@ void MainGame::initSystems()
 	ADS.init("..\\res\\ADS.vert", "..\\res\\ADS.frag", "");
 	shader.init("..\\res\\shader.vert", "..\\res\\shader.frag", "");
 	geomShader.init("..\\res\\shaderGeoText.vert", "..\\res\\shaderGeoText.frag", "..\\res\\shaderGeoText.geom");
+	enviroMappingShader.init("..\\res\\eMapping.vert", "..\\res\\eMapping.frag");
 
 	texture.init("..\\res\\bricks.jpg"); 
 	myCamera.initCamera(glm::vec3(0, 0, -30), 70.0f, (float)_gameDisplay.getWidth()/_gameDisplay.getHeight(), 0.01f, 1000.0f);
@@ -141,6 +142,24 @@ void MainGame::linkGeoShader()
 
 }
 
+void MainGame::linkEnviroMapping()
+{
+	enviroMappingShader.setMat4("model", transform.GetModel());
+	enviroMappingShader.setVec3("cameraPos", myCamera.getPos());
+
+	GLuint texLoc = glGetUniformLocation(enviroMappingShader.ID(), "diffuse");
+	GLuint skyBoxLoc = glGetUniformLocation(skybox.textureID, "Skybox");
+
+	// Set textures
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture.ID());
+	glUniform1i(texLoc, 1);
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, skybox.textureID);
+	glUniform1i(skyBoxLoc, 0);
+}
+
 
 
 void MainGame::drawGame()
@@ -160,9 +179,9 @@ void MainGame::drawGame()
 
 	}
 	else {
-		geomShader.Bind();
-		geomShader.Update(transform, myCamera);
-		linkGeoShader();
+		enviroMappingShader.Bind();
+		enviroMappingShader.Update(transform, myCamera);
+		linkEnviroMapping();
 	}
 
 	texture.Bind(0);
