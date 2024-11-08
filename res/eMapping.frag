@@ -6,7 +6,7 @@ in Vertex_DATA{
     vec3 Position;
 } vs_In;
 
-uniform samplerCube Skybox;
+layout (binding = 0) uniform samplerCube Skybox;
 layout (binding = 1) uniform sampler2D diffuse;
 uniform vec3 cameraPos;
 

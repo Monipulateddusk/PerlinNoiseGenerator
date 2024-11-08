@@ -7,6 +7,7 @@
 #include "Texture.h"
 #include "transform.h"
 #include "Skybox.h"
+#include "FrameBufferObject.h"
 
 enum class GameState{PLAY, EXIT};
 
@@ -21,6 +22,8 @@ public:
 private:
 
 	void initSystems();
+	void initQuadVAO();
+
 	void processInput();
 	void update();
 	void gameLoop();
@@ -29,6 +32,10 @@ private:
 	void linkGeoShader();
 	void linkEnviroMapping();
 
+	void renderFBO();
+	void renderMonkey();
+	void renderSkybox();
+	void renderActiveShader();
 	void drawGame();
 
 
@@ -43,7 +50,11 @@ private:
 	Shader ADS; 
 	Shader geomShader;
 	Shader enviroMappingShader;
+	Shader FBOShader;
 	Skybox skybox;
+	FrameBufferObject* FBO;
+	GLuint quadVAO;
+	GLuint quadVBO;
 
 	float counter;
 	bool isADSEnabled;

@@ -42,6 +42,9 @@
     <ClCompile Include="Skybox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="FrameBufferObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainGame.h">
@@ -72,6 +75,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Skybox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameBufferObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -107,6 +113,12 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="..\res\eMapping.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\FBOShader.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\FBOShader.vert">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
