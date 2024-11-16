@@ -51,6 +51,8 @@ private:
 	Shader geomShader;
 	Shader enviroMappingShader;
 	Shader FBOShader;
+	Shader grayScaleShader; 
+	Shader edgeDetectionShader;
 	Skybox skybox;
 	FrameBufferObject* FBO;
 	GLuint quadVAO;

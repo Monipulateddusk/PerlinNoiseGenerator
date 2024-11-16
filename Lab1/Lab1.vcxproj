@@ -98,10 +98,16 @@
   <ItemGroup>
     <None Include="..\res\ADS.frag" />
     <None Include="..\res\ADS.vert" />
+    <None Include="..\res\edgeDetectionShader.frag" />
+    <None Include="..\res\edgeDetectionShader.vert" />
     <None Include="..\res\eMapping.frag" />
     <None Include="..\res\eMapping.vert" />
     <None Include="..\res\FBOShader.frag" />
     <None Include="..\res\FBOShader.vert" />
+    <None Include="..\res\grayScaleShader.frag" />
+    <None Include="..\res\grayScaleShader.vert" />
+    <None Include="..\res\inversionShader.frag" />
+    <None Include="..\res\inversionShader.vert" />
     <None Include="..\res\shader.frag" />
     <None Include="..\res\shader.vert" />
     <None Include="..\res\shaderGeoText.frag" />

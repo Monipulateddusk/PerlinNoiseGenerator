@@ -22,6 +22,6 @@ void main()
 
     vec4 tex = texture(diffuse, vs_In.tC);
 
-    FragColour = colour + tex;
+    FragColour = mix(colour,tex,0.5);
 
 }

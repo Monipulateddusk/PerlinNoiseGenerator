@@ -43,6 +43,8 @@ void MainGame::initSystems()
 	geomShader.init("..\\res\\shaderGeoText.vert", "..\\res\\shaderGeoText.frag", "..\\res\\shaderGeoText.geom");
 	enviroMappingShader.init("..\\res\\eMapping.vert", "..\\res\\eMapping.frag");
 	FBOShader.init("..\\res\\FBOShader.vert", "..\\res\\FBOShader.frag");
+	grayScaleShader.init("..\\res\\grayScaleShader.vert", "..\\res\\grayScaleShader.frag");
+	edgeDetectionShader.init("..\\res\\edgeDetectionShader.vert", "..\\res\\edgeDetectionShader.frag");
 
 	texture.init("..\\res\\bricks.jpg"); 
 	myCamera.initCamera(glm::vec3(0, 0, -30), 70.0f, (float)_gameDisplay.getWidth()/_gameDisplay.getHeight(), 0.01f, 1000.0f);
@@ -203,7 +205,7 @@ void MainGame::renderFBO()
 	glClearColor(1.f, 1.f, 1.f, 1.f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	FBOShader.Bind();
+	edgeDetectionShader.Bind();
 
 	glBindVertexArray(quadVAO);
 	glBindTexture(GL_TEXTURE_2D, FBO->CBO);

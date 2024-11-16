@@ -13,6 +13,15 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Resource Files\Vertex">
+      <UniqueIdentifier>{1db64c69-4faa-40e8-9efc-2bfa90032dc3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Fragment">
+      <UniqueIdentifier>{d077d11f-37ff-422f-a918-1f3fde87a501}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Geometry">
+      <UniqueIdentifier>{fdaae46b-f8c4-44cd-95e0-0511fb817e5d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -82,44 +91,62 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\res\shader.frag">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\res\shader.vert">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="..\res\ADS.frag">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\res\ADS.vert">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\res\shaderSkybox.frag">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\res\shaderSkybox.vert">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\res\shaderGeoText.frag">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\res\shaderGeoText.geom">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\res\shaderGeoText.vert">
-      <Filter>Resource Files</Filter>
+      <Filter>Resource Files\Fragment</Filter>
     </None>
     <None Include="..\res\eMapping.frag">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\res\eMapping.vert">
-      <Filter>Resource Files</Filter>
+      <Filter>Resource Files\Fragment</Filter>
     </None>
     <None Include="..\res\FBOShader.frag">
-      <Filter>Resource Files</Filter>
+      <Filter>Resource Files\Fragment</Filter>
+    </None>
+    <None Include="..\res\inversionShader.frag">
+      <Filter>Resource Files\Fragment</Filter>
+    </None>
+    <None Include="..\res\shader.frag">
+      <Filter>Resource Files\Fragment</Filter>
+    </None>
+    <None Include="..\res\shaderGeoText.frag">
+      <Filter>Resource Files\Fragment</Filter>
+    </None>
+    <None Include="..\res\shaderSkybox.frag">
+      <Filter>Resource Files\Fragment</Filter>
+    </None>
+    <None Include="..\res\ADS.vert">
+      <Filter>Resource Files\Vertex</Filter>
+    </None>
+    <None Include="..\res\eMapping.vert">
+      <Filter>Resource Files\Vertex</Filter>
     </None>
     <None Include="..\res\FBOShader.vert">
-      <Filter>Resource Files</Filter>
+      <Filter>Resource Files\Vertex</Filter>
+    </None>
+    <None Include="..\res\inversionShader.vert">
+      <Filter>Resource Files\Vertex</Filter>
+    </None>
+    <None Include="..\res\shader.vert">
+      <Filter>Resource Files\Vertex</Filter>
+    </None>
+    <None Include="..\res\shaderGeoText.vert">
+      <Filter>Resource Files\Vertex</Filter>
+    </None>
+    <None Include="..\res\shaderSkybox.vert">
+      <Filter>Resource Files\Vertex</Filter>
+    </None>
+    <None Include="..\res\shaderGeoText.geom">
+      <Filter>Resource Files\Geometry</Filter>
+    </None>
+    <None Include="..\res\grayScaleShader.frag">
+      <Filter>Resource Files\Fragment</Filter>
+    </None>
+    <None Include="..\res\grayScaleShader.vert">
+      <Filter>Resource Files\Vertex</Filter>
+    </None>
+    <None Include="..\res\edgeDetectionShader.vert">
+      <Filter>Resource Files\Vertex</Filter>
+    </None>
+    <None Include="..\res\edgeDetectionShader.frag">
+      <Filter>Resource Files\Fragment</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
