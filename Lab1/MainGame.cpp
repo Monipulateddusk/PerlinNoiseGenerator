@@ -11,7 +11,7 @@ Vertex vertices[] = { Vertex(glm::vec3(-0.5, -0.5, 0), glm::vec2(0.0, 0.0)),
 
 unsigned int indices[] = { 0, 1, 2 };
 
-Transform transform;
+
 
 MainGame::MainGame()
 {
@@ -23,7 +23,7 @@ MainGame::MainGame()
 
 MainGame::~MainGame()
 {
-
+	delete monkey;
 }
 
 void MainGame::run()
@@ -36,8 +36,14 @@ void MainGame::initSystems()
 {
 	_gameDisplay.initDisplay(); 
 	//mesh1.init(vertices, sizeof(vertices) / sizeof(vertices[0]), indices, sizeof(indices) / sizeof(indices[0])); //size calcuated by number of bytes of an array / no bytes of one element
-	mesh2.loadModel("..\\res\\monkey3.obj");
-	
+	/*mesh2.loadModel("..\\res\\monkey3.obj");*/
+
+	monkey = new GameObject("..\\res\\monkey3.obj", "..\\res\\bricks.jpg");
+
+	lavaTexture.init("..\\res\\lava3.jpg");
+	noiseTexture.init("..\\res\\noise.png");
+
+
 	ADS.init("..\\res\\ADS.vert", "..\\res\\ADS.frag", "");
 	shader.init("..\\res\\shader.vert", "..\\res\\shader.frag", "");
 	geomShader.init("..\\res\\shaderGeoText.vert", "..\\res\\shaderGeoText.frag", "..\\res\\shaderGeoText.geom");
@@ -45,8 +51,11 @@ void MainGame::initSystems()
 	FBOShader.init("..\\res\\FBOShader.vert", "..\\res\\FBOShader.frag");
 	grayScaleShader.init("..\\res\\grayScaleShader.vert", "..\\res\\grayScaleShader.frag");
 	edgeDetectionShader.init("..\\res\\edgeDetectionShader.vert", "..\\res\\edgeDetectionShader.frag");
+	noiseShader.init("..\\res\\noise.vert", "..\\res\\noise.frag");
+	glowShader.init("..\\res\\glow.vert", "..\\res\\glow.frag");
+	
 
-	texture.init("..\\res\\bricks.jpg"); 
+	/*texture.init("..\\res\\bricks.jpg"); */
 	myCamera.initCamera(glm::vec3(0, 0, -30), 70.0f, (float)_gameDisplay.getWidth()/_gameDisplay.getHeight(), 0.01f, 1000.0f);
 
 	vector<string> skyboxPaths({ "..\\res\\SkyboxTextures\\right.jpg" ,"..\\res\\SkyboxTextures\\left.jpg" ,"..\\res\\SkyboxTextures\\top.jpg",
@@ -142,9 +151,9 @@ void MainGame::processInput()
 
 void MainGame::update()
 {
-	transform.SetPos(glm::vec3(0.0, 0.0, -20.0));
-	transform.SetRot(glm::vec3(0.0, counter * 2, 0.0));
-	transform.SetScale(glm::vec3(1.0, 1.0, 1.0));
+	monkey->transform.SetPos(glm::vec3(0.0, 0.0, -20.0));
+	monkey->transform.SetRot(glm::vec3(0.0, counter * 2, 0.0));
+	monkey->transform.SetScale(glm::vec3(1.0, 1.0, 1.0));
 
 	counter = counter + 0.01f;
 }
@@ -160,7 +169,7 @@ void MainGame::linkADS()
 	ADS.setVec3("objectColour", objColour);
 	ADS.setVec3("viewPosition", myCamera.getPos());
 
-	glm::mat4 modelMatrix = transform.GetModel();
+	glm::mat4 modelMatrix = monkey->transform.GetModel();
 
 	ADS.setMat4("model", modelMatrix);
 
@@ -182,7 +191,7 @@ void MainGame::linkGeoShader()
 
 void MainGame::linkEnviroMapping()
 {
-	enviroMappingShader.setMat4("model", transform.GetModel());
+	enviroMappingShader.setMat4("model", monkey->transform.GetModel());
 	enviroMappingShader.setVec3("cameraPos", myCamera.getPos());
 
 	GLuint texLoc = glGetUniformLocation(enviroMappingShader.ID(), "diffuse");
@@ -190,12 +199,50 @@ void MainGame::linkEnviroMapping()
 
 	// Set textures
 	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, texture.ID());
+	glBindTexture(GL_TEXTURE_2D, monkey->texture.ID());
 	glUniform1i(texLoc, 1);
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, skybox.textureID);
 	glUniform1i(skyBoxLoc, 0);
+}
+
+void MainGame::linkNoiseShader()
+{
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	noiseShader.Bind();
+	noiseShader.setFloat("time", counter / 20);
+	noiseShader.setFloat("fogDensity", 0.5);
+	noiseShader.setVec3("fogColor", 0.0f, 0.0f, 0.5f);
+	noiseShader.setFloat("maxDist", 10.0f);
+	noiseShader.setFloat("minDist", 0.0f);
+	GLuint t1L = glGetUniformLocation(noiseShader.ID(), "texture1"); //texture 1 location
+	GLuint t2L = glGetUniformLocation(noiseShader.ID(), "texture2");
+
+	//set textures
+	glActiveTexture(GL_TEXTURE0); //set acitve texture unit
+	glBindTexture(GL_TEXTURE_2D, noiseTexture.ID());
+	glUniform1i(t1L, 0);
+
+	glActiveTexture(GL_TEXTURE1); //set acitve texture unit
+	glBindTexture(GL_TEXTURE_2D, lavaTexture.ID());
+	glUniform1i(t2L, 1);
+
+	//type of and texture to bind to unit
+
+
+	monkey->transform.SetPos(glm::vec3(0.0, 0.0, -25));
+	monkey->transform.SetRot(glm::vec3(0.0, 10, 0.0));
+	monkey->transform.SetScale(glm::vec3(1.2, 1.2, 1.2));
+
+	myCamera.MoveRight(0.0001);
+
+	noiseShader.Update(monkey->transform, myCamera);
+
+
+
+	monkey->mesh.draw();
 }
 
 
@@ -214,8 +261,8 @@ void MainGame::renderFBO()
 
 void MainGame::renderMonkey()
 {
-	texture.Bind(0);
-	mesh2.draw();
+	monkey->texture.Bind(0);
+	monkey->mesh.draw();
 }
 
 void MainGame::renderSkybox()
@@ -227,13 +274,13 @@ void MainGame::renderActiveShader()
 {
 	if (isADSEnabled) {
 		ADS.Bind();
-		ADS.Update(transform, myCamera);
+		ADS.Update(monkey->transform, myCamera);
 		linkADS();
 
 	}
 	else {
 		enviroMappingShader.Bind();
-		enviroMappingShader.Update(transform, myCamera);
+		enviroMappingShader.Update(monkey->transform, myCamera);
 		linkEnviroMapping();
 	}
 }
@@ -242,22 +289,28 @@ void MainGame::drawGame()
 {
 	_gameDisplay.clearDisplay(0.0f, 0.0f, 0.0f, 1.0f);
 
-	FBO->Bind(); // Bind the FBO
+	//FBO->Bind(); // Bind the FBO
 
 	// Render the scene to the FBO
 	renderSkybox();
-	renderActiveShader();
-	renderMonkey();
+	linkNoiseShader();
 
-	FBO->UnBind(); // UnBind and render the FBO
-	renderFBO();
+	/*myCamera.MoveRight(0.0001);
+	myCamera.setLook((*monkey->transform.GetPos()));*/
+
+
+	//renderActiveShader();
+	//renderMonkey();
+
+	//FBO->UnBind(); // UnBind and render the FBO
+	//renderFBO();
 
 	glEnable(GL_DEPTH_TEST);	
 
 	// Render scene again
-	renderSkybox();
-	renderActiveShader();
-	renderMonkey();
+	//renderSkybox();
+	//renderActiveShader();
+	//renderMonkey();
 
 
 	glEnableClientState(GL_COLOR_ARRAY); 

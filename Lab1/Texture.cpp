@@ -3,10 +3,6 @@
 #include <cassert>
 #include <iostream>
 
-Texture::Texture()
-{
-}
-
 void Texture::init(const std::string& fileName)
 {
 	int width, height, numComponents; //width, height, and no of components of image
@@ -36,7 +32,7 @@ Texture::~Texture()
 	glDeleteTextures(1, &textureHandler); // number of and address of textures
 }
 
-void Texture::Bind(unsigned int unit)
+void Texture::Bind(unsigned int unit) const
 {
 	assert(unit >= 0 && unit <= 31); /// check we are working with one of the 32 textures
 

@@ -66,7 +66,7 @@ Mesh::~Mesh()
 	glDeleteVertexArrays(1, &vertexArrayObject); // delete arrays
 }
 
-void Mesh::draw()
+void Mesh::draw() const
 {
 	glBindVertexArray(vertexArrayObject);
 	

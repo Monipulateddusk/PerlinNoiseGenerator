@@ -3,11 +3,9 @@
 #include <GL/glew.h>
 #include "Display.h" 
 #include "Shader.h"
-#include "Mesh.h"
-#include "Texture.h"
-#include "transform.h"
 #include "Skybox.h"
 #include "FrameBufferObject.h"
+#include "GameObject.h"
 
 enum class GameState{PLAY, EXIT};
 
@@ -31,6 +29,7 @@ private:
 	void linkADS();
 	void linkGeoShader();
 	void linkEnviroMapping();
+	void linkNoiseShader();
 
 	void renderFBO();
 	void renderMonkey();
@@ -42,19 +41,33 @@ private:
 
 	Display _gameDisplay;
 	GameState _gameState;
-	Mesh mesh1;
-	Mesh mesh2;
-	Camera myCamera;
-	Texture texture; 
+
+	#pragma region Shaders
+
 	Shader shader;
-	Shader ADS; 
+	Shader ADS;
 	Shader geomShader;
 	Shader enviroMappingShader;
 	Shader FBOShader;
-	Shader grayScaleShader; 
+	Shader grayScaleShader;
 	Shader edgeDetectionShader;
+	Shader noiseShader;
+	Shader glowShader;
+
+	#pragma endregion
+
+	Texture noiseTexture, lavaTexture;
+
 	Skybox skybox;
+	GameObject* monkey;
+	
+	//Mesh mesh1;
+	//Mesh mesh2;
+	Camera myCamera;
+	//Texture texture; 
+
 	FrameBufferObject* FBO;
+	//Transform transform;
 	GLuint quadVAO;
 	GLuint quadVBO;
 

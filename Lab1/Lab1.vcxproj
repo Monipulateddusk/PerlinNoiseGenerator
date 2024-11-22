@@ -73,6 +73,7 @@
   <ItemGroup>
     <ClCompile Include="Display.cpp" />
     <ClCompile Include="FrameBufferObject.cpp" />
+    <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainGame.cpp" />
     <ClCompile Include="Mesh.cpp" />
@@ -86,6 +87,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Display.h" />
     <ClInclude Include="FrameBufferObject.h" />
+    <ClInclude Include="GameObject.h" />
     <ClInclude Include="MainGame.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="obj_loader.h" />
@@ -104,10 +106,14 @@
     <None Include="..\res\eMapping.vert" />
     <None Include="..\res\FBOShader.frag" />
     <None Include="..\res\FBOShader.vert" />
+    <None Include="..\res\Glow.frag" />
+    <None Include="..\res\Glow.vert" />
     <None Include="..\res\grayScaleShader.frag" />
     <None Include="..\res\grayScaleShader.vert" />
     <None Include="..\res\inversionShader.frag" />
     <None Include="..\res\inversionShader.vert" />
+    <None Include="..\res\noise.frag" />
+    <None Include="..\res\noise.vert" />
     <None Include="..\res\shader.frag" />
     <None Include="..\res\shader.vert" />
     <None Include="..\res\shaderGeoText.frag" />
