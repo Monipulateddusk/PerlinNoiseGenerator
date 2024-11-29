@@ -6,6 +6,7 @@
 #include "Skybox.h"
 #include "FrameBufferObject.h"
 #include "GameObject.h"
+#include "PerlinNoiseGenerator.h"
 
 enum class GameState{PLAY, EXIT};
 
@@ -60,6 +61,10 @@ private:
 
 	Skybox skybox;
 	GameObject* monkey;
+
+	PerlinNoiseGenerator noiseGen;
+
+
 	
 	//Mesh mesh1;
 	//Mesh mesh2;
@@ -74,6 +79,6 @@ private:
 	float counter;
 	bool isADSEnabled;
 
-
+	unsigned int perlinNoiseSeedValue;
 };
 
