@@ -68,6 +68,9 @@ void MainGame::initSystems()
 
 	counter = 0.0f;
 
+	noiseGen.CreatePerlinNoiseTexture();
+
+
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 }
 
@@ -135,12 +138,17 @@ void MainGame::processInput()
 
 				case SDLK_RIGHT: // Increment the seed value on the perlin noise generator
 					perlinNoiseSeedValue++;
-					noiseGen.CreatePerlinNoise(perlinNoiseSeedValue);
 					break;
 
 				case SDLK_LEFT: // Decrement the seed value on the perlin noise generator
 					perlinNoiseSeedValue == 0 ? perlinNoiseSeedValue = 0 : perlinNoiseSeedValue--;
-					noiseGen.CreatePerlinNoise(perlinNoiseSeedValue);
+					break;
+
+				case SDLK_BACKSPACE:
+					system("cls");
+					std::cout << "BACKSPACE KEY PRESSED" << std::endl;
+					noiseGen.SetSeedValue(perlinNoiseSeedValue);
+					noiseGen.CreatePerlinNoiseTexture();
 					break;
 
 				case SDLK_ESCAPE:

@@ -8,6 +8,7 @@
 #include <random>
 #include <glm/glm.hpp>
 #include "Texture.h"
+#include <filesystem>
 
 /// <summary>
 /// This class makes use of this resource: https://rtouti.github.io/graphics/perlin-noise-algorithm
@@ -19,24 +20,26 @@ public:
     PerlinNoiseGenerator(unsigned int& seedVal) : seed(seedVal){}
 	~PerlinNoiseGenerator(){}
 
-    const float& Noise2D(const float& x, const float& y) const;
-    const float& FractalBrownianMotion(const float& x, const float& y, const int& octavesNum) const;
+    const float& Noise2D(const float& x, const float& y);
+    const float& FractalBrownianMotion(const float& x, const float& y, const int& octavesNum);
 
-    void CreatePerlinNoiseTexture(const int& width = 256, const int& height = 256);
-    void DebuggingOutputToConsole(const int& width, const int& height, const unsigned int& seedValue) const;
+    void CreatePerlinNoiseTexture();
+    void DebuggingOutputToConsole(const int& width, const int& height, const unsigned int& seedValue);
 
     const void SetSeedValue(const unsigned int& seedValue) const;
     inline const Texture GetTexture() const { return perlinNoiseTexture; }
 
 private:
     Texture perlinNoiseTexture;
-    std::array<int, 256> CreatePermutationTable() const;
-    glm::vec2 GetConstantVector(const unsigned int& permTableValue) const;
-    const float& Fade(const float& value) const;
-    const float& Lerp(const float& a, const float& b, const float& v) const;
+    std::array<int, 256> CreatePermutationTable();
+    glm::vec2 GetConstantVector(const unsigned int& permTableValue);
+    const float& Fade(const float& value);
+    const float& Lerp(const float& a, const float& b, const float& v);
+
+    unsigned char* ConvertFloatVecToUnsignedChar(const std::vector<float> floatVec);
 
     unsigned int& seed;
-    unsigned int defaultSeed = 0;
+    unsigned int defaultSeed = 99;
 
     // Declared to reduce computation for continual use. 
 	const std::array<int, 256> BASE_PERMUTATION_TABLE = {

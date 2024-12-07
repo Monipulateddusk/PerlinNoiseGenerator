@@ -1,11 +1,14 @@
 #include "PerlinNoiseGenerator.h"
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
+
 
 /// <summary>
 /// This function takes the Perm table and converts coordinates into perlin noise
 /// </summary>
 /// <param name="x"></param>
 /// <param name="y"></param>
-const float& PerlinNoiseGenerator::Noise2D(const float& x, const float& y) const
+const float& PerlinNoiseGenerator::Noise2D(const float& x, const float& y)
 {
 	// Wrapping the X and Y to 256
 	const int X = static_cast<int>(std::floor(x)) & 255;
@@ -41,7 +44,7 @@ const float& PerlinNoiseGenerator::Noise2D(const float& x, const float& y) const
 	return Lerp(leftLerp, rightLerp, u);
 }
 
-const float& PerlinNoiseGenerator::FractalBrownianMotion(const float& x, const float& y, const int& octavesNum) const
+const float& PerlinNoiseGenerator::FractalBrownianMotion(const float& x, const float& y, const int& octavesNum)
 {
 	float amplitude = 1.0f;
 	float frequency = 0.005;
@@ -57,35 +60,45 @@ const float& PerlinNoiseGenerator::FractalBrownianMotion(const float& x, const f
 	return result;
 }
 
-void PerlinNoiseGenerator::CreatePerlinNoiseTexture(const int& width, const int& height) 
+void PerlinNoiseGenerator::CreatePerlinNoiseTexture()
 {
+	int width = 256, height = 256;
+	unsigned char data[256 * 256]{};
 	// Create a 1D vector to hold all the texture data (RGBA format)
 	std::vector<float> textureData(width * height);  // Correct size for a 2D texture (width * height)
 
+	float floatData;
 	// Populate the texture data with noise values
 	for (int h = 0; h < height; h++) {
 		for (int w = 0; w < width; w++) {
+			floatData = FractalBrownianMotion(w, h, 4);
+
 			int index = h * width + w;  // Convert 2D coordinates to 1D index
-			textureData[index] = FractalBrownianMotion(w, h, 3);  // Fill with noise value
+			textureData[index] = floatData;  // Fill with noise value
 		}
 	}
-
-	// Initialize the texture with the generated data
-	perlinNoiseTexture.initData(width, height, &textureData);
-
-	std::cout << "Sample texture data:" << std::endl;
-	for (int h = 0; h < height && h < 5; h++) {  // Print first 5 rows for brevity
-		for (int w = 0; w < width && w < 5; w++) {  // Print first 5 columns for brevity
-			int index = h * width + w;
-			std::cout << textureData[index] << " ";
-		}
-		std::cout << std::endl;
+	// Convert float values in textureData to unsigned char for image format (grayscale)
+	for (int i = 0; i < width * height; ++i) {
+		data[i] = static_cast<unsigned char>(std::min(255.0f, std::max(0.0f, textureData[i] * 255.0f)));
 	}
 
+	// Testing path
+	std::filesystem::path currentPath = std::filesystem::current_path();
+	std::cout << "Current working directory: " << currentPath << std::endl;
+
+
+	int res = stbi_write_png("GeneratedPerlinNoise.png", width, height, 1, data, width * 1);
+
+	if (res == 0) {
+		std::cout << "UNABLE TO WRITE TO FILE" << std::endl;
+	}
+	else {
+		std::cout << "Result of image is: " << res << std::endl;
+	}
 }
 
 
-void PerlinNoiseGenerator::DebuggingOutputToConsole(const int& width, const int& height, const unsigned int& seedValue) const
+void PerlinNoiseGenerator::DebuggingOutputToConsole(const int& width, const int& height, const unsigned int& seedValue) 
 {
 	system("cls");
 	std::cout << "Seed Value is: " << seedValue << std::endl;
@@ -114,7 +127,7 @@ const void PerlinNoiseGenerator::SetSeedValue(const unsigned int& seedValue) con
 /// Unsure if this is best implementation to do the bulk of the noise function in GPU.
 /// </summary>
 /// <param name="seedValue"></param>
-std::array<int,256> PerlinNoiseGenerator::CreatePermutationTable() const
+std::array<int,256> PerlinNoiseGenerator::CreatePermutationTable() 
 {
 	// Randomise the permutation table based on the seed
 	std::array<int, 256> permTable = BASE_PERMUTATION_TABLE;
@@ -129,18 +142,30 @@ std::array<int,256> PerlinNoiseGenerator::CreatePermutationTable() const
 /// </summary>
 /// <param name="permTableValue"></param>
 /// <returns></returns>
-glm::vec2 PerlinNoiseGenerator::GetConstantVector(const unsigned int& permTableValue) const
+glm::vec2 PerlinNoiseGenerator::GetConstantVector(const unsigned int& permTableValue) 
 {
 	const float angle = (permTableValue / 255.f) * 2.f * std::_Pi_val;
 	return glm::vec2(std::cos(angle), std::sin(angle));
 }
 
-const float& PerlinNoiseGenerator::Fade(const float& value) const
+const float& PerlinNoiseGenerator::Fade(const float& value) 
 {
 	return ((6* value  - 15) * value + 10) * value * value * value;
 }
 
-const float& PerlinNoiseGenerator::Lerp(const float& a, const float& b, const float& v) const
+const float& PerlinNoiseGenerator::Lerp(const float& a, const float& b, const float& v) 
 {
 	return a * (1.0 - v) + (b * v);
+}
+
+unsigned char* PerlinNoiseGenerator::ConvertFloatVecToUnsignedChar(const std::vector<float> floatVec)
+{
+	// Create a buffer large enough to hold all the bytes of the float vector
+	size_t byteSize = floatVec.size() * sizeof(float);
+	unsigned char* byteArray = new unsigned char[byteSize];
+
+	// Copy the raw data from the vector into the byte array
+	std::memcpy(byteArray, floatVec.data(), byteSize);
+
+	return byteArray;
 }
