@@ -172,6 +172,12 @@
     <None Include="..\res\noise.vert">
       <Filter>Resource Files\Vertex</Filter>
     </None>
+    <None Include="..\res\perlinNoiseShader.frag">
+      <Filter>Resource Files\Fragment</Filter>
+    </None>
+    <None Include="..\res\perlinNoiseShader.vert">
+      <Filter>Resource Files\Vertex</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Object Include="..\res\monkey3.obj">
