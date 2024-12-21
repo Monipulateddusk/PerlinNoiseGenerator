@@ -31,10 +31,23 @@ const float& PerlinNoiseGenerator::Noise2D(const float& x, const float& y)
 	const int valueBottomRight = permTable[permTable[X + 1] + Y];
 	const int valueBottomLeft = permTable[permTable[X]+ Y];
 
-	const float dotTopRight = glm::dot(topRight, GetConstantVector(valueTopRight));
-	const float dotTopLeft = glm::dot(topLeft, GetConstantVector(valueTopLeft));
-	const float dotBottomRight = glm::dot(bottomRight, GetConstantVector(valueBottomRight));
-	const float dotBottomLeft = glm::dot(bottomLeft, GetConstantVector(valueBottomLeft));
+	const glm::vec2 vecTopRight = GetConstantVector(valueTopRight);
+	const glm::vec2 vecTopLeft= GetConstantVector(valueTopLeft);
+	const glm::vec2 vecBottomRight = GetConstantVector(valueBottomRight);
+	const glm::vec2 vecBottomLeft = GetConstantVector(valueBottomLeft);
+
+	// Debugging the constant vectors to ensure they are being calculated correctly. What we should see is simularities between each grid via 'wall sharing' and that the right edge of the image file should have the same const vec as the left
+	std::cout << "Grid location: (" << xf << ", " << yf << ")\n";
+	std::cout << "BottomLeft Vector: (" << vecBottomLeft.x << ", " << vecBottomLeft.y << ")\n";
+	std::cout << "BottomRight Vector: (" << vecBottomRight.x << ", " << vecBottomRight.y << ")\n";
+	std::cout << "TopLeft Vector: (" << vecTopLeft.x << ", " << vecTopLeft.y << ")\n";
+	std::cout << "TopRight Vector: (" << vecTopRight.x << ", " << vecTopRight.y << ")\n\n";
+
+
+	const float dotTopRight = glm::dot(topRight, vecTopRight);
+	const float dotTopLeft = glm::dot(topLeft, vecTopLeft);
+	const float dotBottomRight = glm::dot(bottomRight, vecBottomRight);
+	const float dotBottomLeft = glm::dot(bottomLeft, vecBottomLeft);
 
 	const float u = Fade(xf);
 	const float v = Fade(yf);
@@ -71,7 +84,7 @@ void PerlinNoiseGenerator::CreatePerlinNoiseTexture()
 	// Populate the texture data with noise values
 	for (int h = 0; h < height; h++) {
 		for (int w = 0; w < width; w++) {
-			floatData = FractalBrownianMotion(w, h, 4);
+			floatData = FractalBrownianMotion(w, h, 1);
 
 			int index = h * width + w;  // Convert 2D coordinates to 1D index
 			textureData[index] = floatData;  // Fill with noise value
@@ -83,8 +96,8 @@ void PerlinNoiseGenerator::CreatePerlinNoiseTexture()
 	}
 
 	// Testing path
-	std::filesystem::path currentPath = std::filesystem::current_path();
-	std::cout << "Current working directory: " << currentPath << std::endl;
+	//std::filesystem::path currentPath = std::filesystem::current_path();
+	//std::cout << "Current working directory: " << currentPath << std::endl;
 
 
 	int res = stbi_write_png("GeneratedPerlinNoise.png", width, height, 1, data, width * 1);
