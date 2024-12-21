@@ -36,14 +36,6 @@ const float& PerlinNoiseGenerator::Noise2D(const float& x, const float& y)
 	const glm::vec2 vecBottomRight = GetConstantVector(valueBottomRight);
 	const glm::vec2 vecBottomLeft = GetConstantVector(valueBottomLeft);
 
-	// Debugging the constant vectors to ensure they are being calculated correctly. What we should see is simularities between each grid via 'wall sharing' and that the right edge of the image file should have the same const vec as the left
-	std::cout << "Grid location: (" << xf << ", " << yf << ")\n";
-	std::cout << "BottomLeft Vector: (" << vecBottomLeft.x << ", " << vecBottomLeft.y << ")\n";
-	std::cout << "BottomRight Vector: (" << vecBottomRight.x << ", " << vecBottomRight.y << ")\n";
-	std::cout << "TopLeft Vector: (" << vecTopLeft.x << ", " << vecTopLeft.y << ")\n";
-	std::cout << "TopRight Vector: (" << vecTopRight.x << ", " << vecTopRight.y << ")\n\n";
-
-
 	const float dotTopRight = glm::dot(topRight, vecTopRight);
 	const float dotTopLeft = glm::dot(topLeft, vecTopLeft);
 	const float dotBottomRight = glm::dot(bottomRight, vecBottomRight);
@@ -92,7 +84,7 @@ void PerlinNoiseGenerator::CreatePerlinNoiseTexture()
 	}
 	// Convert float values in textureData to unsigned char for image format (grayscale)
 	for (int i = 0; i < width * height; ++i) {
-		data[i] = static_cast<unsigned char>(std::min(255.0f, std::max(0.0f, textureData[i] * 255.0f)));
+		data[i] = static_cast<unsigned char>(std::min(255.0f, std::max(0.0f, 255.f - textureData[i] * 255.0f)));
 	}
 
 	// Testing path
@@ -159,6 +151,7 @@ glm::vec2 PerlinNoiseGenerator::GetConstantVector(const unsigned int& permTableV
 {
 	const float angle = (permTableValue / 255.f) * 2.f * std::_Pi_val;
 	return glm::vec2(std::cos(angle), std::sin(angle));
+	
 }
 
 const float& PerlinNoiseGenerator::Fade(const float& value) 
