@@ -20,7 +20,7 @@ public:
     PerlinNoiseGenerator(unsigned int& seedVal) : seed(seedVal){}
 	~PerlinNoiseGenerator(){}
 
-    const float& Noise2D(const float& x, const float& y);
+    const float& Noise2D(const float& x, const float& y, const int& octavesNum);
     const float& FractalBrownianMotion(const float& x, const float& y, const int& octavesNum);
 
     void CreatePerlinNoiseTexture();
@@ -33,13 +33,20 @@ private:
     Texture perlinNoiseTexture;
     std::array<int, 256> CreatePermutationTable();
     glm::vec2 GetConstantVector(const unsigned int& permTableValue);
-    const float& Fade(const float& value);
-    const float& Lerp(const float& a, const float& b, const float& v);
+    const float Fade(const float& value);
+    const float Lerp(const float& a, const float& b, const float& v);
+    const float Interpolate(const float& p0, const float& p1, const float& p2, const float& p3, const float& t);
 
     unsigned char* ConvertFloatVecToUnsignedChar(const std::vector<float> floatVec);
 
     unsigned int& seed;
     unsigned int defaultSeed = 99;
+    std::array<int, 256> p_table;
+
+    glm::vec2 pre_topLeft, pre_topRight, pre_botLeft, pre_botRight;
+    int pre_aa, pre_ab, pre_ba, pre_bb;
+
+
 
     // Declared to reduce computation for continual use. 
 	const std::array<int, 256> BASE_PERMUTATION_TABLE = {

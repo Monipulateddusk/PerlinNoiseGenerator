@@ -184,4 +184,9 @@
       <Filter>Resource Files</Filter>
     </Object>
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="GeneratedPerlinNoise.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
 </Project>
