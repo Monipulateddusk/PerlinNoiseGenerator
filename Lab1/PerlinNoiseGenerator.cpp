@@ -34,53 +34,33 @@ const float& PerlinNoiseGenerator::Noise2D(const float& x, const float& y, const
 	const glm::vec2 vecBottomRight = GetConstantVector(ba);
 	const glm::vec2 vecBottomLeft = GetConstantVector(aa);
 
-
-	if (curOcative == 0) {
-		//if(pre_aa != 0){
-		//	assert(pre_bb == ab && "Top-right of previous cell doesn't match top-left of current cell!");
-		//	assert(pre_ba == aa && "Bottom-right of previous cell doesn't match bottom-left of current cell!");
-		//}
-
-		pre_aa = aa;
-		pre_ab = ab;
-		pre_ba = ba;
-		pre_bb = bb;
-
-		pre_topLeft = vecTopLeft;
-		pre_topRight = vecTopRight;
-		pre_botRight = vecBottomRight;
-		pre_botLeft = vecBottomLeft;
-
-		
-	}
-
 	const float dotTopRight = glm::dot(topRight, vecTopRight);
 	const float dotTopLeft = glm::dot(topLeft, vecTopLeft);
 	const float dotBottomRight = glm::dot(bottomRight, vecBottomRight);
 	const float dotBottomLeft = glm::dot(bottomLeft, vecBottomLeft);
 
-	const float u = Fade(xf);
-	const float v = Fade(yf);
+	const float u = SmoothStep(xf);
+	const float v = SmoothStep(yf);
 
-	const float leftLerp = Interpolate(dotBottomLeft, dotTopLeft, dotTopLeft, dotTopRight, u);
-	const float rightLerp = Interpolate(dotBottomRight, dotTopRight, dotTopRight, dotTopLeft, u);
-	return Interpolate(leftLerp, rightLerp, rightLerp, leftLerp, v);
+	const float leftLerp = Lerp(dotBottomLeft, dotTopLeft, u);
+	const float rightLerp = Lerp(dotBottomRight, dotTopRight, u);
+	return Lerp(leftLerp, rightLerp, v);
 }
 
 const float& PerlinNoiseGenerator::FractalBrownianMotion(const float& x, const float& y, const int& octavesNum)
 {
 	float amplitude = 1.0f;
-	float frequency = 0.1f;
+	float frequency = 1.0f;
 	float maxAmp = 0.0f;
 	float result = 0;
 
 	for (int o = 0; o < octavesNum; o++) {
-		const float n = amplitude * Noise2D(x * frequency, y * frequency, o);
+		const float n = amplitude * Noise2D((x * frequency) / 256, (y * frequency) / 256, o);
 		result += n;
 
 		maxAmp += amplitude;
 		amplitude *= 0.5f;
-		frequency *= 2.0f;
+		frequency *= 2.f;
 	}
 	result /= maxAmp;
 	return result;
@@ -89,7 +69,7 @@ const float& PerlinNoiseGenerator::FractalBrownianMotion(const float& x, const f
 void PerlinNoiseGenerator::CreatePerlinNoiseTexture()
 {
 	int width = 256, height = 256;
-	unsigned char data[256 * 256]{};
+	char* data = new char[256 * 256]{};
 	// Create a 1D vector to hold all the texture data (RGBA format)
 	std::vector<float> textureData(width * height);  // Correct size for a 2D texture (width * height)
 
@@ -98,9 +78,13 @@ void PerlinNoiseGenerator::CreatePerlinNoiseTexture()
 	p_table = CreatePermutationTable();
 
 	// Populate the texture data with noise values
-	for (int w = 0; w < width; w++) {
-		for (int h = 0; h < height; h++) {
+	for (int h = 0; h < height; h++) {
+		for (int w = 0; w < width; w++) {
 			floatData = FractalBrownianMotion(w, h, 16);
+
+			//std::cout << "Position is: X: " << w << ", " << h << " Data Output is: " << floatData << std::endl;
+
+			floatData = (floatData - 0) / (1 - 0);
 
 			int index = h * width + w;  // Convert 2D coordinates to 1D index
 			textureData[index] = floatData;  // Fill with noise value
@@ -124,6 +108,8 @@ void PerlinNoiseGenerator::CreatePerlinNoiseTexture()
 	else {
 		std::cout << "Result of image is: " << res << std::endl;
 	}
+
+	delete[] data;
 }
 
 
@@ -156,10 +142,15 @@ const void PerlinNoiseGenerator::SetSeedValue(const unsigned int& seedValue) con
 /// Unsure if this is best implementation to do the bulk of the noise function in GPU.
 /// </summary>
 /// <param name="seedValue"></param>
-std::array<int,256> PerlinNoiseGenerator::CreatePermutationTable() 
+std::array<int,512> PerlinNoiseGenerator::CreatePermutationTable() 
 {
-	// Randomise the permutation table based on the seed
-	std::array<int, 256> permTable = BASE_PERMUTATION_TABLE;
+	std::array<int, 512> permTable = {};
+
+	for (int i = 0; i < 256; i++) {
+		permTable[i] = BASE_PERMUTATION_TABLE[i];
+		permTable[i + 256] = BASE_PERMUTATION_TABLE[i];
+	}
+
 
 	std::shuffle(permTable.begin(), permTable.end(), std::default_random_engine(seed));
 
@@ -173,26 +164,18 @@ std::array<int,256> PerlinNoiseGenerator::CreatePermutationTable()
 /// <returns></returns>
 glm::vec2 PerlinNoiseGenerator::GetConstantVector(const unsigned int& permTableValue) 
 {
-	if (false) {
-		const float h = permTableValue & 3;
-		if (h == 0)
-			return  glm::vec2(1.0, 1.0);
-		else if (h == 1)
-			return  glm::vec2(-1.0, 1.0);
-		else if (h == 2)
-			return  glm::vec2(-1.0, -1.0);
-		else
-			return  glm::vec2(1.0, -1.0);
-	}
-	else {
-		const float angle = (permTableValue / 255.f) * 2.f * std::_Pi_val;
-		return glm::vec2(std::cos(angle), std::sin(angle));
-	}	
+	const float angle = (permTableValue / 255.f) * 2.f * std::_Pi_val;
+	return glm::vec2(std::cos(angle), std::sin(angle));
 }
 
 const float PerlinNoiseGenerator::Fade(const float& value) 
 {
 	return value * value * value * (value * (value * 6.0f - 15.0f) + 10.0f);
+}
+
+const float PerlinNoiseGenerator::SmoothStep(const float& value)
+{
+	return value *value * (3.0f - 2.0f *value);
 }
 
 const float PerlinNoiseGenerator::Lerp(const float& a, const float& b, const float& v) 

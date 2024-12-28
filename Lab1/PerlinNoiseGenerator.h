@@ -16,8 +16,8 @@
 class PerlinNoiseGenerator
 {
 public:
-    PerlinNoiseGenerator() : seed(defaultSeed){}
-    PerlinNoiseGenerator(unsigned int& seedVal) : seed(seedVal){}
+    PerlinNoiseGenerator() : seed(defaultSeed), p_table{} {}
+    PerlinNoiseGenerator(unsigned int& seedVal) : seed(seedVal), p_table {} {}
 	~PerlinNoiseGenerator(){}
 
     const float& Noise2D(const float& x, const float& y, const int& octavesNum);
@@ -31,9 +31,10 @@ public:
 
 private:
     Texture perlinNoiseTexture;
-    std::array<int, 256> CreatePermutationTable();
+    std::array<int, 512> CreatePermutationTable();
     glm::vec2 GetConstantVector(const unsigned int& permTableValue);
     const float Fade(const float& value);
+    const float SmoothStep(const float& value);
     const float Lerp(const float& a, const float& b, const float& v);
     const float Interpolate(const float& p0, const float& p1, const float& p2, const float& p3, const float& t);
 
@@ -41,10 +42,10 @@ private:
 
     unsigned int& seed;
     unsigned int defaultSeed = 99;
-    std::array<int, 256> p_table;
+    std::array<int, 512> p_table;
 
     glm::vec2 pre_topLeft, pre_topRight, pre_botLeft, pre_botRight;
-    int pre_aa, pre_ab, pre_ba, pre_bb;
+    int pre_aa =0, pre_ab = 0, pre_ba = 0, pre_bb = 0;
 
 
 
