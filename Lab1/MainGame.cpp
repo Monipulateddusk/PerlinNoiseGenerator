@@ -19,6 +19,7 @@ MainGame::MainGame()
 	_gameState = GameState::PLAY;
 	Display* _gameDisplay = new Display(); //new display
 	FBO = new FrameBufferObject();
+	perlinNoiseSeedValue = 0;
 }
 
 MainGame::~MainGame()
@@ -66,6 +67,9 @@ void MainGame::initSystems()
 	initQuadVAO();
 
 	counter = 0.0f;
+
+	noiseGen.CreatePerlinNoiseTexture();
+
 
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 }
@@ -130,6 +134,23 @@ void MainGame::processInput()
 					isADSEnabled = !isADSEnabled;
 
 					break;
+
+
+				case SDLK_RIGHT: // Increment the seed value on the perlin noise generator
+					perlinNoiseSeedValue++;
+					break;
+
+				case SDLK_LEFT: // Decrement the seed value on the perlin noise generator
+					perlinNoiseSeedValue == 0 ? perlinNoiseSeedValue = 0 : perlinNoiseSeedValue--;
+					break;
+
+				case SDLK_BACKSPACE:
+					system("cls");
+					std::cout << "BACKSPACE KEY PRESSED" << std::endl;
+					noiseGen.SetSeedValue(perlinNoiseSeedValue);
+					noiseGen.CreatePerlinNoiseTexture();
+					break;
+
 				case SDLK_ESCAPE:
 					_gameState = GameState::EXIT;
 				default:
@@ -144,6 +165,7 @@ void MainGame::processInput()
 				myCamera.Yaw(-xRel / 1000);
 
 				break;
+
 		}
 	}
 	
