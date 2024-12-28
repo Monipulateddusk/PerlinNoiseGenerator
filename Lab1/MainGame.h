@@ -7,6 +7,7 @@
 #include "FrameBufferObject.h"
 #include "GameObject.h"
 #include "PerlinNoiseGenerator.h"
+#include "BaseUserInterfaceElement.h"
 
 enum class GameState{PLAY, EXIT};
 
@@ -36,6 +37,8 @@ private:
 	void renderMonkey();
 	void renderSkybox();
 	void renderActiveShader();
+	
+	void drawUIElements();
 	void drawGame();
 
 
@@ -56,6 +59,12 @@ private:
 	Shader glowShader;
 
 	#pragma endregion
+
+#pragma region UI
+	BaseUserInterfaceElement* elementSelected;
+	MouseState mouseState;
+#pragma endregion
+
 
 	Texture noiseTexture, lavaTexture;
 

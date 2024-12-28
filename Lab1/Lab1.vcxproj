@@ -72,6 +72,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BaseUserInterfaceElement.cpp" />
     <ClCompile Include="Display.cpp" />
     <ClCompile Include="FrameBufferObject.cpp" />
     <ClCompile Include="GameObject.cpp" />
@@ -86,6 +87,7 @@
     <ClCompile Include="Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BaseUserInterfaceElement.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Display.h" />
     <ClInclude Include="FrameBufferObject.h" />

@@ -4,7 +4,6 @@
 #include <string>
 
 
-
 Vertex vertices[] = { Vertex(glm::vec3(-0.5, -0.5, 0), glm::vec2(0.0, 0.0)),
 					Vertex(glm::vec3(0, 0.5, 0), glm::vec2(0.5, 1.0)),
 					Vertex(glm::vec3(0.5, -0.5, 0), glm::vec2(1.0, 0.0)) };
@@ -25,6 +24,11 @@ MainGame::MainGame()
 MainGame::~MainGame()
 {
 	delete monkey;
+
+	for (list<BaseUserInterfaceElement*>::iterator it = BaseUserInterfaceElement::elements.begin(); it != BaseUserInterfaceElement::elements.end(); it++)
+	{
+		delete (*it);
+	}
 }
 
 void MainGame::run()
@@ -70,8 +74,8 @@ void MainGame::initSystems()
 
 	noiseGen.CreatePerlinNoiseTexture();
 
-
-	SDL_SetRelativeMouseMode(SDL_TRUE);
+	// Uncomment if we are doing camera movement
+	// SDL_SetRelativeMouseMode(SDL_TRUE);
 }
 
 void MainGame::initQuadVAO()
@@ -118,6 +122,11 @@ void MainGame::gameLoop()
 void MainGame::processInput()
 {
 	SDL_Event evnt;
+	SDL_GetMouseState(&mouseState.mouseXPos, &mouseState.mouseYPos);
+
+	mouseState.LeftButtonDown == SDL_GetMouseState(NULL, NULL) && SDL_BUTTON(1);
+	mouseState.MiddleButtonDown == SDL_GetMouseState(NULL, NULL) && SDL_BUTTON(2);
+	mouseState.RightButtonDown == SDL_GetMouseState(NULL, NULL) && SDL_BUTTON(3);
 
 	while(SDL_PollEvent(&evnt)) //get and process events
 	{
@@ -159,12 +168,13 @@ void MainGame::processInput()
 			break;
 
 			// Mouse input
-			case SDL_MOUSEMOTION:
-				float xRel = evnt.motion.xrel, yRel = evnt.motion.yrel;
-				myCamera.Pitch(yRel / 1000);
-				myCamera.Yaw(-xRel / 1000);
+			// Uncomment if we are doing camera movement
+			//case SDL_MOUSEMOTION:
+			//	float xRel = evnt.motion.xrel, yRel = evnt.motion.yrel;
+			//	myCamera.Pitch(yRel / 1000);
+			//	myCamera.Yaw(-xRel / 1000);
 
-				break;
+			//	break;
 
 		}
 	}
@@ -307,6 +317,33 @@ void MainGame::renderActiveShader()
 	}
 }
 
+void MainGame::drawUIElements()
+{
+	for (list<BaseUserInterfaceElement*>::iterator it = BaseUserInterfaceElement::elements.begin(); it != BaseUserInterfaceElement::elements.end(); it++) 
+	{
+		BaseUserInterfaceElement* element = (*it);
+
+		element->drawUI();
+
+		// Don't process other UI elements while we have selected one already 
+		if (element != NULL && elementSelected != element) { continue; }
+
+		if (element->updateUI(mouseState)) {
+			elementSelected = element;
+
+			
+		}
+		// if the thing we selected no longer is being controlled, set it back to null
+		else if (element == elementSelected) {
+			elementSelected = NULL;
+		}
+		// We have updated but no events were needed to be handled
+		else {
+
+		}
+	}
+}
+
 void MainGame::drawGame()
 {
 	_gameDisplay.clearDisplay(0.0f, 0.0f, 0.0f, 1.0f);
@@ -337,6 +374,13 @@ void MainGame::drawGame()
 
 	glEnableClientState(GL_COLOR_ARRAY); 
 	glEnd();
+
+
+	// Draw the UI
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+	drawUIElements();
 
 	_gameDisplay.swapBuffer();
 }
