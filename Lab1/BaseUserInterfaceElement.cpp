@@ -18,10 +18,12 @@ BaseUserInterfaceElement::~BaseUserInterfaceElement()
 	elements.remove(this);
 }
 
-bool BaseUserInterfaceElement::updateUI(MouseState& state)
+bool BaseUserInterfaceElement::updateUI(MouseState& state, int screenHeight)
 {
 	int x = state.mouseXPos;
-	int y = state.mouseYPos;
+	int y = screenHeight - state.mouseYPos;
+
+	isMouseInside = false;
 
 	// Check to see if the mouse's cursor is inside the element, if so, set the inside to true
 	if (x >= posX && x <= posX + width &&

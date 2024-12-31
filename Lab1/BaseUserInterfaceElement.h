@@ -1,6 +1,5 @@
 #pragma once
-#include <list>
-#include <string>
+#include "DEFINITIONS.h"
 
 struct MouseState 
 {
@@ -23,8 +22,9 @@ public:
 	BaseUserInterfaceElement(int pX, int pY, int w, int h);
 	virtual ~BaseUserInterfaceElement();
 
-	virtual bool updateUI(MouseState &state);
-	virtual bool drawUI() = 0;
+	virtual bool updateUI(MouseState& state, int screenHeight);
+
+	virtual void drawUI() = 0;
 	
 	virtual std::string getType() = 0;
 

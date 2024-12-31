@@ -1,9 +1,6 @@
 #pragma once
-#include <glm\glm.hpp>
-#include <GL\glew.h>
-#include <string>
 #include "obj_loader.h"
-
+#include "DEFINITIONS.h"
 struct Vertex
 {
 public:

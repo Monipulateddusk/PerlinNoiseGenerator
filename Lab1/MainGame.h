@@ -1,13 +1,12 @@
 #pragma once
-#include <SDL\SDL.h>
-#include <GL/glew.h>
+#include "DEFINITIONS.h"
 #include "Display.h" 
 #include "Shader.h"
 #include "Skybox.h"
 #include "FrameBufferObject.h"
 #include "GameObject.h"
 #include "PerlinNoiseGenerator.h"
-#include "BaseUserInterfaceElement.h"
+#include "UIButton.h"
 
 enum class GameState{PLAY, EXIT};
 
@@ -63,6 +62,8 @@ private:
 #pragma region UI
 	BaseUserInterfaceElement* elementSelected;
 	MouseState mouseState;
+
+	UIButton* tempButton;
 #pragma endregion
 
 

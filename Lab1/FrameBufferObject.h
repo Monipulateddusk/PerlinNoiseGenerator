@@ -1,7 +1,6 @@
 #pragma once
-#include <SDL\SDL.h>
-#include <GL/glew.h>
-#include <iostream>
+#include "DEFINITIONS.h"
+
 class FrameBufferObject
 {
 public:

@@ -1,14 +1,7 @@
 #pragma once
-#include <SDL\SDL.h>
-#include <GL/glew.h>
-#include <iostream>
-#include <array>
-#include <algorithm>
-#include <cstdlib>
-#include <random>
-#include <glm/glm.hpp>
+#include "DEFINITIONS.h"
 #include "Texture.h"
-#include <filesystem>
+
 
 /// <summary>
 /// This class makes use of this resource: https://rtouti.github.io/graphics/perlin-noise-algorithm

@@ -1,6 +1,5 @@
 #pragma once
-#include <string>
-#include <GL\glew.h>
+#include "DEFINITIONS.h"
 
 class Texture
 {

@@ -19,16 +19,29 @@ MainGame::MainGame()
 	Display* _gameDisplay = new Display(); //new display
 	FBO = new FrameBufferObject();
 	perlinNoiseSeedValue = 0;
+	elementSelected = NULL;
+	
 }
 
 MainGame::~MainGame()
 {
 	delete monkey;
 
-	for (list<BaseUserInterfaceElement*>::iterator it = BaseUserInterfaceElement::elements.begin(); it != BaseUserInterfaceElement::elements.end(); it++)
+	for (auto it = BaseUserInterfaceElement::elements.begin(); it != BaseUserInterfaceElement::elements.end(); )
 	{
-		delete (*it);
+		if (*it != nullptr) {
+			std::cout << "Processing element at iterator: " << *it << std::endl;
+
+			*it = nullptr;
+		}
+		// Erase the element and move to the next
+		it = BaseUserInterfaceElement::elements.erase(it);
+
+		// Optionally print the size of the list after each erase
+		std::cout << "Remaining elements in list: " << BaseUserInterfaceElement::elements.size() << std::endl;
 	}
+
+	
 }
 
 void MainGame::run()
@@ -73,6 +86,8 @@ void MainGame::initSystems()
 	counter = 0.0f;
 
 	noiseGen.CreatePerlinNoiseTexture();
+
+	UIButton* button = new UIButton("Button", _gameDisplay.getWidth() /2 , _gameDisplay.getHeight() / 2, 200, 50);
 
 	// Uncomment if we are doing camera movement
 	// SDL_SetRelativeMouseMode(SDL_TRUE);
@@ -124,9 +139,9 @@ void MainGame::processInput()
 	SDL_Event evnt;
 	SDL_GetMouseState(&mouseState.mouseXPos, &mouseState.mouseYPos);
 
-	mouseState.LeftButtonDown == SDL_GetMouseState(NULL, NULL) && SDL_BUTTON(1);
-	mouseState.MiddleButtonDown == SDL_GetMouseState(NULL, NULL) && SDL_BUTTON(2);
-	mouseState.RightButtonDown == SDL_GetMouseState(NULL, NULL) && SDL_BUTTON(3);
+	mouseState.LeftButtonDown == SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT);
+	mouseState.MiddleButtonDown == SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_MIDDLE);
+	mouseState.RightButtonDown == SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT);
 
 	while(SDL_PollEvent(&evnt)) //get and process events
 	{
@@ -178,7 +193,11 @@ void MainGame::processInput()
 
 		}
 	}
-	
+	//system("cls");
+	//std::cout << "Mouse Position: (" << mouseState.mouseXPos << ", " << mouseState.mouseYPos << ")\n";
+	//std::cout << "Left Button Down: " << (mouseState.LeftButtonDown ? "Yes" : "No") << "\n";
+	//std::cout << "Middle Button Down: " << (mouseState.MiddleButtonDown ? "Yes" : "No") << "\n";
+	//std::cout << "Right Button Down: " << (mouseState.RightButtonDown ? "Yes" : "No") << "\n";
 }
 
 void MainGame::update()
@@ -319,69 +338,73 @@ void MainGame::renderActiveShader()
 
 void MainGame::drawUIElements()
 {
-	for (list<BaseUserInterfaceElement*>::iterator it = BaseUserInterfaceElement::elements.begin(); it != BaseUserInterfaceElement::elements.end(); it++) 
+	// Basically, only allow processing of a specific UI element so that we check if the cursor is within the bounds of an object and then process it's logic
+	for (auto it = BaseUserInterfaceElement::elements.begin(); it != BaseUserInterfaceElement::elements.end(); it++) 
 	{
 		BaseUserInterfaceElement* element = (*it);
 
 		element->drawUI();
+		// If we have our mouse hovered over something, process it and only it
+		if (element->updateUI(mouseState, _gameDisplay.getHeight())) {
 
-		// Don't process other UI elements while we have selected one already 
-		if (element != NULL && elementSelected != element) { continue; }
-
-		if (element->updateUI(mouseState)) {
-			elementSelected = element;
-
-			
+			if (elementSelected == nullptr) {
+				elementSelected = element;
+			}
 		}
-		// if the thing we selected no longer is being controlled, set it back to null
+		// When our mouse is not over this object, deselect it but it was before, deselect it. 
 		else if (element == elementSelected) {
-			elementSelected = NULL;
-		}
-		// We have updated but no events were needed to be handled
-		else {
-
+			elementSelected = nullptr;
 		}
 	}
 }
 
 void MainGame::drawGame()
 {
-	_gameDisplay.clearDisplay(0.0f, 0.0f, 0.0f, 1.0f);
+	_gameDisplay.clearDisplay(1.0f, 1.0f, 1.0f, 1.0f);
 
-	//FBO->Bind(); // Bind the FBO
-
-	// Render the scene to the FBO
+	// ----- 3D Rendering -----
+	// Enable depth, texture culling and texture mapping for 3D rendering
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+	
 	renderSkybox();
 	linkNoiseShader();
+	renderActiveShader();
+	renderMonkey();
 
-	/*myCamera.MoveRight(0.0001);
-	myCamera.setLook((*monkey->transform.GetPos()));*/
+	// ----- 2D Rendering -----
+	
+	// Clear depth buffer
+	glClear(GL_DEPTH_BUFFER_BIT);
 
+	// Clear any active shaders
+	glUseProgram(0); // Disable shaders
 
-	//renderActiveShader();
-	//renderMonkey();
+	// Disable 3D-specific settings
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
 
-	//FBO->UnBind(); // UnBind and render the FBO
-	//renderFBO();
-
-	glEnable(GL_DEPTH_TEST);	
-
-	// Render scene again
-	//renderSkybox();
-	//renderActiveShader();
-	//renderMonkey();
-
-
-	glEnableClientState(GL_COLOR_ARRAY); 
-	glEnd();
-
-
-	// Draw the UI
-	glMatrixMode(GL_MODELVIEW);
+	// Set up an orthographic projection matrix
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
 	glLoadIdentity();
+	glOrtho(0.0, _gameDisplay.getWidth(), 0.0, _gameDisplay.getHeight(), -1.0, 1.0);
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+
 
 	drawUIElements();
 
+	// Restore matrices
+	glPopMatrix();               // Restore modelview matrix
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();               // Restore projection matrix
+	glMatrixMode(GL_MODELVIEW);
+
+	// Swap the buffer
 	_gameDisplay.swapBuffer();
 }
+
+
 
