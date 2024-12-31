@@ -88,6 +88,9 @@ void MainGame::initSystems()
 	noiseGen.CreatePerlinNoiseTexture();
 
 	UIButton* button = new UIButton("Button", _gameDisplay.getWidth() /2 , _gameDisplay.getHeight() / 2, 200, 50);
+	UISlider* slider = new UISlider("Slider", -1, 1, 10, 40, 500, 20);
+
+	slider->setValue(&sliderValue);
 
 	// Uncomment if we are doing camera movement
 	// SDL_SetRelativeMouseMode(SDL_TRUE);
@@ -139,9 +142,9 @@ void MainGame::processInput()
 	SDL_Event evnt;
 	SDL_GetMouseState(&mouseState.mouseXPos, &mouseState.mouseYPos);
 
-	mouseState.LeftButtonDown == SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT);
-	mouseState.MiddleButtonDown == SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_MIDDLE);
-	mouseState.RightButtonDown == SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT);
+	mouseState.LeftButtonDown = SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT);
+	mouseState.MiddleButtonDown = SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_MIDDLE);
+	mouseState.RightButtonDown = SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT);
 
 	while(SDL_PollEvent(&evnt)) //get and process events
 	{
@@ -153,32 +156,32 @@ void MainGame::processInput()
 
 			case SDL_KEYUP:
 				switch (evnt.key.keysym.sym) {
-				case SDLK_s:
-					// Switch between the different shaders
-					isADSEnabled = !isADSEnabled;
+					case SDLK_s:
+						// Switch between the different shaders
+						isADSEnabled = !isADSEnabled;
 
-					break;
+						break;
 
 
-				case SDLK_RIGHT: // Increment the seed value on the perlin noise generator
-					perlinNoiseSeedValue++;
-					break;
+					case SDLK_RIGHT: // Increment the seed value on the perlin noise generator
+						perlinNoiseSeedValue++;
+						break;
 
-				case SDLK_LEFT: // Decrement the seed value on the perlin noise generator
-					perlinNoiseSeedValue == 0 ? perlinNoiseSeedValue = 0 : perlinNoiseSeedValue--;
-					break;
+					case SDLK_LEFT: // Decrement the seed value on the perlin noise generator
+						perlinNoiseSeedValue == 0 ? perlinNoiseSeedValue = 0 : perlinNoiseSeedValue--;
+						break;
 
-				case SDLK_BACKSPACE:
-					system("cls");
-					std::cout << "BACKSPACE KEY PRESSED" << std::endl;
-					noiseGen.SetSeedValue(perlinNoiseSeedValue);
-					noiseGen.CreatePerlinNoiseTexture();
-					break;
+					case SDLK_BACKSPACE:
+						system("cls");
+						std::cout << "BACKSPACE KEY PRESSED" << std::endl;
+						noiseGen.SetSeedValue(perlinNoiseSeedValue);
+						noiseGen.CreatePerlinNoiseTexture();
+						break;
 
-				case SDLK_ESCAPE:
-					_gameState = GameState::EXIT;
-				default:
-					break;
+					case SDLK_ESCAPE:
+						_gameState = GameState::EXIT;
+					default:
+						break;
 				}
 			break;
 

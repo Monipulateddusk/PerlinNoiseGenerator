@@ -87,6 +87,7 @@
     <ClCompile Include="stb_image.c" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="UIButton.cpp" />
+    <ClCompile Include="UISlider.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseUserInterfaceElement.h" />
@@ -105,6 +106,7 @@
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="transform.h" />
+    <ClInclude Include="UISlider.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\res\ADS.frag" />

@@ -7,6 +7,7 @@
 #include "GameObject.h"
 #include "PerlinNoiseGenerator.h"
 #include "UIButton.h"
+#include "UISlider.h"
 
 enum class GameState{PLAY, EXIT};
 
@@ -63,7 +64,7 @@ private:
 	BaseUserInterfaceElement* elementSelected;
 	MouseState mouseState;
 
-	UIButton* tempButton;
+	float sliderValue = 0.5f;
 #pragma endregion
 
 

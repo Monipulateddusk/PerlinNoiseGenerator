@@ -12,8 +12,8 @@ bool UIButton::updateUI(MouseState& state, int screenHeight)
 	BaseUserInterfaceElement::updateUI(state, screenHeight);
 
 	// Usual procedure, if the mouse is inside the element and they click, process the button
-	if (isMouseInside == true) {
-		if (state.LeftButtonDown == true) 
+	if (isMouseInside) {
+		if (state.LeftButtonDown) 
 		{
 			isDown = true;
 		}
