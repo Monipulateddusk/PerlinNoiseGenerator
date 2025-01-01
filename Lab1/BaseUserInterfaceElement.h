@@ -34,14 +34,15 @@ public:
 	inline void setPosition(int x, int y) { posX = x; posY = y; }
 	inline void setSize(int w, int h) { width = w, height = h; }
 
-
-
 	static std::list<BaseUserInterfaceElement*> elements;
 
 protected:
 
 	bool isMouseInside;
 	int posX, posY, width, height;
+
+	// ChatGPT aided with the syntax for all of this. First time using lambdas which I just wanted a nice and flexible way to handle the events for UI
+	std::vector<std::function<void()>> listeners;
 };
 
 BaseUserInterfaceElement* addElement(BaseUserInterfaceElement* element);

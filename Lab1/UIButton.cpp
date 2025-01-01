@@ -20,7 +20,7 @@ bool UIButton::updateUI(MouseState& state, int screenHeight)
 		// If it was down, raise it back up and return true
 		else if (isDown) {
 			isDown = false;
-
+			processInteractEvent();
 			return true;
 		}
 	}
@@ -68,4 +68,11 @@ void UIButton::drawUI()
 std::string UIButton::getType()
 {
 	return "button";
+}
+
+void UIButton::processInteractEvent()
+{
+	for (const auto& listener : listeners) {
+		listener();
+	}
 }

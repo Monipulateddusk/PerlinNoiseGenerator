@@ -88,9 +88,19 @@ void MainGame::initSystems()
 	noiseGen.CreatePerlinNoiseTexture();
 
 	UIButton* button = new UIButton("Button", _gameDisplay.getWidth() /2 , _gameDisplay.getHeight() / 2, 200, 50);
+
+	button->addListener([]() {std::cout << "EVENT WHOOO!!!" << std::endl;});
+
 	UISlider* slider = new UISlider("Slider", -1, 1, 10, 40, 500, 20);
 
 	slider->setValue(&sliderValue);
+
+	slider->addListener([&slider]()
+		{
+			float currentValue = slider->getCurrentValue();
+			std::cout << "Current value of slider is: " << currentValue << std::endl;
+		}
+	);
 
 	// Uncomment if we are doing camera movement
 	// SDL_SetRelativeMouseMode(SDL_TRUE);
@@ -407,6 +417,11 @@ void MainGame::drawGame()
 
 	// Swap the buffer
 	_gameDisplay.swapBuffer();
+}
+
+void MainGame::TestEvent()
+{
+	std::cout << "EVENT WORKS, WHOOOOOO!" << std::endl;
 }
 
 

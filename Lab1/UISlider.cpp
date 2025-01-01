@@ -52,6 +52,7 @@ bool UISlider::updateUI(MouseState& state, int screenHeight)
 		else if (*currentValue < sliderMin) {
 			*currentValue = sliderMin;
 		}
+		processInteractEvent();
 	}
 
 	return isDragging;
@@ -108,4 +109,11 @@ void UISlider::drawUI()
 std::string UISlider::getType()
 {
 	return "slider";
+}
+
+void UISlider::processInteractEvent()
+{
+	for (const auto& listener : listeners) {
+		listener();
+	}
 }

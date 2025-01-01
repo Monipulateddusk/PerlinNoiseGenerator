@@ -1,6 +1,8 @@
 #pragma once
 #include "DEFINITIONS.h"
 #include "BaseUserInterfaceElement.h"
+#include <functional> 
+
 class UISlider : BaseUserInterfaceElement
 {
 public:
@@ -14,6 +16,10 @@ public:
 
 	virtual std::string getType();
 
+	inline void addListener(std::function<void()>func) { listeners.push_back(func); }
+
+	inline float getCurrentValue() { return *currentValue; }
+
 protected:
 	float defaultValue;
 	float sliderMin, sliderMax;
@@ -22,5 +28,7 @@ protected:
 	bool isDragging;
 
 	std::string sliderLabel;
+
+	void processInteractEvent();
 };
 
