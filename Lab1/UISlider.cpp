@@ -80,9 +80,15 @@ void UISlider::drawUI()
 	glEnd();
 
 	// Drawing of the slider's outline when selected
-	if (isMouseInside == true)
+	if (isDragging)
 	{
 		glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
+		glLineWidth(2.0f);
+	}
+
+	else if (isMouseInside == true  && isDragging == false)
+	{
+		glColor4f(1.0f, 1.0f, 0.0f, 1.0f);
 		glLineWidth(2.0f);
 	}
 	else
@@ -111,7 +117,7 @@ void UISlider::drawUI()
 	// One that doesn't change saying 'Current Value: ' and the other will be updated by the current value
 
 	int yOffset = height + 10.f; // Offsetting the text rendering to 10 pixels plus the height of the slider so it sits just above the slider
-	BitmapInfo info = writeText(sliderLabel.c_str(), width, height, 18);
+	BitmapInfo info = writeText(sliderLabel.c_str(), (width / 4), height, 18);
 
 	// We can't assume that these aren't already enabled/disabled
 	glEnable(GL_TEXTURE_2D);
@@ -139,31 +145,32 @@ void UISlider::drawUI()
 
 		// Tex coords - Top right | Vertex origin of 1,0
 		glTexCoord2f(1.0f, 1.0f);
-		glVertex2d(posX + width, posY+ yOffset);
+		glVertex2d(posX + info.b_w, posY+ yOffset);
 
 		// Tex coords - Bottom Right | Vertex origin of 1,1
 		glTexCoord2f(1.0f, 0.0f);
-		glVertex2d(posX + width, posY + height+ yOffset);
+		glVertex2d(posX + info.b_w, posY + info.b_h + yOffset);
 
 		// Tex coords - Bottom Left | Vertex origin of 0,1
 		glTexCoord2f(0.0f, 0.0f);
-		glVertex2d(posX, posY + height+ yOffset);
+		glVertex2d(posX, posY + +info.b_h + yOffset);
 
 	glEnd();
-
-	glDisable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
+	
+	// Slider current value display
+	// Get the previous data for text box allignment
 	BitmapInfo preBitmapInfo = info;
-	char* curVal = (char*)currentValue;
-	info = writeText(curVal, width, height, 18);
 
-	// We can't assume that these aren't already enabled/disabled
-	glEnable(GL_TEXTURE_2D);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	// Convert the float to string for use in text rendering
+	std::string stringVal = std::to_string((*currentValue));
+	
+	info = writeText(stringVal.c_str(), width, height);
 
+	int previousOriginX = posX + preBitmapInfo.b_w;
+
+	// Clearing the texture of the previous text rendering so we can reuse it here
 	glBindTexture(GL_TEXTURE_2D, texture);
+	glClearTexImage(texture, 0, GL_RGBA, GL_UNSIGNED_BYTE, preBitmapInfo.bitmap);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // wrap texture outside width
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // wrap texture outside height
@@ -171,29 +178,30 @@ void UISlider::drawUI()
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // linear filtering for minification (texture is smaller than area)
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // linear filtering for magnifcation (texture is larger)
 
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	/*	Generating the texture image data using the bitmap data for the text rendering */
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, info.b_w, info.b_h, 0, GL_RGBA, GL_UNSIGNED_BYTE, info.bitmap);
 
 	/*	Generate the texture that the text will render onto by taking the texture data | We need to flip it as text for some reason rendered upside down */
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glBegin(GL_QUADS);
-	/*		The text ordinarally is flipped along the Y. Thus, we need to flip the texture coords of the square		*/
-	// Tex coords - Top Left | Vertex origin of 0,0
-	glTexCoord2f(0.0f, 1.0f);
-	glVertex2d(posX, posY + yOffset);
+		/*		The text ordinarally is flipped along the Y. Thus, we need to flip the texture coords of the square		*/
+		// Tex coords - Top Left | Vertex origin of 0,0
+		glTexCoord2f(0.0f, 1.0f);
+		glVertex2d(previousOriginX, posY + yOffset);
 
-	// Tex coords - Top right | Vertex origin of 1,0
-	glTexCoord2f(1.0f, 1.0f);
-	glVertex2d(posX + width, posY + yOffset);
+		// Tex coords - Top right | Vertex origin of 1,0
+		glTexCoord2f(1.0f, 1.0f);
+		glVertex2d(previousOriginX + info.b_w, posY + yOffset);
 
-	// Tex coords - Bottom Right | Vertex origin of 1,1
-	glTexCoord2f(1.0f, 0.0f);
-	glVertex2d(posX + width, posY + height + yOffset);
+		// Tex coords - Bottom Right | Vertex origin of 1,1
+		glTexCoord2f(1.0f, 0.0f);
+		glVertex2d(previousOriginX + info.b_w, posY + info.b_h + yOffset);
 
-	// Tex coords - Bottom Left | Vertex origin of 0,1
-	glTexCoord2f(0.0f, 0.0f);
-	glVertex2d(posX, posY + height + yOffset);
-
+		// Tex coords - Bottom Left | Vertex origin of 0,1
+		glTexCoord2f(0.0f, 0.0f);
+		glVertex2d(previousOriginX, posY +info.b_h + yOffset);
+	
 	glEnd();
 
 	glDisable(GL_TEXTURE_2D);
@@ -214,3 +222,4 @@ void UISlider::processInteractEvent()
 		listener();
 	}
 }
+
