@@ -7,8 +7,8 @@ class UISlider : BaseUserInterfaceElement
 {
 public:
 	UISlider(std::string label, float min, float max, int posX, int posY, int width, int height);
-
-	void setValue(float* v);
+	~UISlider();
+	void setValue(float v);
 
 	virtual bool updateUI(MouseState& state, int screenHeight);
 
@@ -18,12 +18,22 @@ public:
 
 	inline void addListener(std::function<void()>func) { listeners.push_back(func); }
 
-	inline float getCurrentValue() { return *currentValue; }
+	inline float getCurrentValue() 
+	{	
+		if (currentValue != nullptr && currentValue) 
+		{ 
+			return *currentValue; 
+		}	
+		else {
+			std::cerr << "Error: currentValue is null!" << std::endl;
+			return 0.0f; // Default value
+		}
+	}
 
 protected:
 	float defaultValue;
 	float sliderMin, sliderMax;
-	float* currentValue;
+	std::shared_ptr<float> currentValue;
 
 	bool isDragging;
 

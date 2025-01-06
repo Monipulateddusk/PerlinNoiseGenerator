@@ -23,6 +23,7 @@ private:
 
 	void initSystems();
 	void initQuadVAO();
+	void initUI();
 
 	void processInput();
 	void update();
@@ -38,6 +39,7 @@ private:
 	void renderSkybox();
 	void renderActiveShader();
 	
+	void drawBackgroundUI();
 	void drawUIElements();
 	void drawGame();
 
@@ -62,7 +64,7 @@ private:
 	BaseUserInterfaceElement* elementSelected;
 	MouseState mouseState;
 
-	float sliderValue = 0.5f;
+	float* sliderValue = new float(0);
 #pragma endregion
 
 

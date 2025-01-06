@@ -15,9 +15,13 @@ UISlider::UISlider(std::string label, float min, float max, int posX, int posY, 
 	glGenTextures(1, &texture);
 }
 
-void UISlider::setValue(float* v)
+UISlider::~UISlider()
 {
-	currentValue = v;
+}
+
+void UISlider::setValue(float v)
+{
+	currentValue = std::make_shared<float>(v);
 	if (currentValue != NULL) {
 		defaultValue = *currentValue;
 	}

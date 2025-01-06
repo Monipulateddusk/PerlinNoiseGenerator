@@ -20,12 +20,12 @@ MainGame::MainGame()
 	FBO = new FrameBufferObject();
 	perlinNoiseSeedValue = 0;
 	elementSelected = NULL;
-	
 }
 
 MainGame::~MainGame()
 {
 	delete monkey;
+	delete sliderValue;
 
 	for (auto it = BaseUserInterfaceElement::elements.begin(); it != BaseUserInterfaceElement::elements.end(); )
 	{
@@ -53,8 +53,6 @@ void MainGame::run()
 void MainGame::initSystems()
 {
 	_gameDisplay.initDisplay(); 
-	//mesh1.init(vertices, sizeof(vertices) / sizeof(vertices[0]), indices, sizeof(indices) / sizeof(indices[0])); //size calcuated by number of bytes of an array / no bytes of one element
-	/*mesh2.loadModel("..\\res\\monkey3.obj");*/
 
 	monkey = new GameObject("..\\res\\monkey3.obj", "..\\res\\bricks.jpg");
 
@@ -73,8 +71,7 @@ void MainGame::initSystems()
 	glowShader.init("..\\res\\glow.vert", "..\\res\\glow.frag");
 	
 
-	/*texture.init("..\\res\\bricks.jpg"); */
-	myCamera.initCamera(glm::vec3(0, 0, -30), 70.0f, (float)_gameDisplay.getWidth()/_gameDisplay.getHeight(), 0.01f, 1000.0f);
+	myCamera.initCamera(glm::vec3(-1, 0, -30), 70.0f, (float)_gameDisplay.getWidth()/_gameDisplay.getHeight(), 0.01f, 1000.0f);
 
 	vector<string> skyboxPaths({ "..\\res\\SkyboxTextures\\right.jpg" ,"..\\res\\SkyboxTextures\\left.jpg" ,"..\\res\\SkyboxTextures\\top.jpg",
 									"..\\res\\SkyboxTextures\\bottom.jpg" ,"..\\res\\SkyboxTextures\\front.jpg" ,"..\\res\\SkyboxTextures\\back.jpg" });
@@ -86,21 +83,7 @@ void MainGame::initSystems()
 	counter = 0.0f;
 
 	noiseGen.CreatePerlinNoiseTexture();
-
-	UIButton* button = new UIButton("Generate Perlin", _gameDisplay.getWidth() /2 , _gameDisplay.getHeight() / 2, 200, 50);
-
-	button->addListener([]() {std::cout << "EVENT WHOOO!!!" << std::endl;});
-
-	UISlider* slider = new UISlider("Slider", -1, 1, 10, 40, 500, 20);
-
-	slider->setValue(&sliderValue);
-
-	slider->addListener([&slider]()
-		{
-			float currentValue = slider->getCurrentValue();
-			std::cout << "Current value of slider is: " << currentValue << std::endl;
-		}
-	);
+	initUI();
 
 	// Uncomment if we are doing camera movement
 	// SDL_SetRelativeMouseMode(SDL_TRUE);
@@ -133,6 +116,31 @@ void MainGame::initQuadVAO()
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 
 
+}
+
+void MainGame::initUI()
+{
+	int origin = (_gameDisplay.getWidth() / 3) ;
+	UIButton* button = new UIButton("Generate Perlin", origin, _gameDisplay.getHeight() / 2, 200, 50);
+
+	button->addListener([]() {std::cout << "EVENT WHOOO!!!" << std::endl;});
+
+	UISlider* slider = new UISlider("Seed", -1, 1, origin, 40, 500, 20);
+
+	slider->setValue(*sliderValue);
+
+	slider->addListener([&slider]()
+		{
+			if (slider != nullptr) {
+				std::cout << "Interacting with Slider" << std::endl;
+				float currentValue = slider->getCurrentValue();
+				std::cout << "Current value of slider is: " << currentValue << std::endl;
+			}
+			else {
+				std::cerr << "Slider or currentValue is null!" << std::endl;
+			}
+		}
+	);
 }
 
 void MainGame::gameLoop()
@@ -194,23 +202,8 @@ void MainGame::processInput()
 						break;
 				}
 			break;
-
-			// Mouse input
-			// Uncomment if we are doing camera movement
-			//case SDL_MOUSEMOTION:
-			//	float xRel = evnt.motion.xrel, yRel = evnt.motion.yrel;
-			//	myCamera.Pitch(yRel / 1000);
-			//	myCamera.Yaw(-xRel / 1000);
-
-			//	break;
-
 		}
 	}
-	//system("cls");
-	//std::cout << "Mouse Position: (" << mouseState.mouseXPos << ", " << mouseState.mouseYPos << ")\n";
-	//std::cout << "Left Button Down: " << (mouseState.LeftButtonDown ? "Yes" : "No") << "\n";
-	//std::cout << "Middle Button Down: " << (mouseState.MiddleButtonDown ? "Yes" : "No") << "\n";
-	//std::cout << "Right Button Down: " << (mouseState.RightButtonDown ? "Yes" : "No") << "\n";
 }
 
 void MainGame::update()
@@ -349,6 +342,22 @@ void MainGame::renderActiveShader()
 	}
 }
 
+void MainGame::drawBackgroundUI()
+{
+	// Draw background
+	// If the origin is the bottom left, the origin of the quad would be 2/3 into the total screen size
+	int origin = (_gameDisplay.getWidth() / 3) * 1.8f;
+	glColor4f(0.2f, 0.2f, 0.2f, 1.f);
+
+	// Base drawing of the button's quad
+	glBegin(GL_QUADS);
+		glVertex2d(_gameDisplay.getWidth(), 0);
+		glVertex2d(origin, 0);
+		glVertex2d(origin, _gameDisplay.getHeight());
+		glVertex2d(_gameDisplay.getWidth(), _gameDisplay.getHeight());
+	glEnd();
+}
+
 void MainGame::drawUIElements()
 {
 	// Basically, only allow processing of a specific UI element so that we check if the cursor is within the bounds of an object and then process it's logic
@@ -406,7 +415,7 @@ void MainGame::drawGame()
 	glPushMatrix();
 	glLoadIdentity();
 
-
+	drawBackgroundUI();
 	drawUIElements();
 
 	// Restore matrices
