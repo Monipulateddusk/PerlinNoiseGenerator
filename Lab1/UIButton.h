@@ -2,7 +2,7 @@
 #include "BaseUserInterfaceElement.h"
 #include <functional> 
 
-class UIButton : BaseUserInterfaceElement
+class UIButton : public BaseUserInterfaceElement
 {
 public:
 	UIButton(std::string label, int positionX, int positionY, int width, int height);

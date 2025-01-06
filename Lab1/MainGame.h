@@ -61,9 +61,10 @@ private:
 	#pragma endregion
 
 #pragma region UI
-	BaseUserInterfaceElement* elementSelected;
+	std::shared_ptr<BaseUserInterfaceElement> elementSelected;
 	MouseState mouseState;
 
+	std::vector<std::shared_ptr<BaseUserInterfaceElement>> uiElements;
 	float* sliderValue = new float(0);
 #pragma endregion
 

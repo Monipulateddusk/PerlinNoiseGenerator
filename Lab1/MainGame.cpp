@@ -27,19 +27,19 @@ MainGame::~MainGame()
 	delete monkey;
 	delete sliderValue;
 
-	for (auto it = BaseUserInterfaceElement::elements.begin(); it != BaseUserInterfaceElement::elements.end(); )
-	{
-		if (*it != nullptr) {
-			std::cout << "Processing element at iterator: " << *it << std::endl;
+	//for (auto it = BaseUserInterfaceElement::elements.begin(); it != BaseUserInterfaceElement::elements.end(); )
+	//{
+	//	if (*it != nullptr) {
+	//		std::cout << "Processing element at iterator: " << *it << std::endl;
 
-			*it = nullptr;
-		}
-		// Erase the element and move to the next
-		it = BaseUserInterfaceElement::elements.erase(it);
+	//		*it = nullptr;
+	//	}
+	//	// Erase the element and move to the next
+	//	it = BaseUserInterfaceElement::elements.erase(it);
 
-		// Optionally print the size of the list after each erase
-		std::cout << "Remaining elements in list: " << BaseUserInterfaceElement::elements.size() << std::endl;
-	}
+	//	// Optionally print the size of the list after each erase
+	//	std::cout << "Remaining elements in list: " << BaseUserInterfaceElement::elements.size() << std::endl;
+	//}
 
 	
 }
@@ -117,18 +117,29 @@ void MainGame::initQuadVAO()
 
 
 }
-
+/// <summary>
+/// All UI elements are put into a vector containing smart pointers to each UI element. 
+/// Due to polymorphism, we can correctly store it as the base component and get their overriden mechanics
+/// 
+/// Method is:
+/// -	Declare object as shared pointer
+/// -	Declare the Lambda event
+/// -	Add the shared pointer to the vector
+/// </summary>
 void MainGame::initUI()
 {
-	int origin = (_gameDisplay.getWidth() / 3) ;
-	UIButton* button = new UIButton("Generate Perlin", origin, _gameDisplay.getHeight() / 2, 200, 50);
+	// Had odd occourance where the pointer given by the static inside the baseUserInterfaceElement was causing corrupted pointers when some events tried to fire
+	// Converting to smart pointers seemed to fix it
+	int origin = (_gameDisplay.getWidth() / 3) * 1.81;
 
+	/*	Generate Perlin Button	*/
+	auto button = std::make_shared<UIButton>("Generate Perlin", 100, 200, 200, 50);
 	button->addListener([]() {std::cout << "EVENT WHOOO!!!" << std::endl;});
+	uiElements.push_back(std::static_pointer_cast<BaseUserInterfaceElement>(button));
 
-	UISlider* slider = new UISlider("Seed", -1, 1, origin, 40, 500, 20);
-
+	/*	Generate Perlin Button	*/
+	auto slider = std::make_shared<UISlider>("Seed", -1, 1, origin, 40, 400, 20);
 	slider->setValue(*sliderValue);
-
 	slider->addListener([&slider]()
 		{
 			if (slider != nullptr) {
@@ -141,6 +152,8 @@ void MainGame::initUI()
 			}
 		}
 	);
+	uiElements.push_back(std::static_pointer_cast<BaseUserInterfaceElement>(slider));
+
 }
 
 void MainGame::gameLoop()
@@ -361,9 +374,8 @@ void MainGame::drawBackgroundUI()
 void MainGame::drawUIElements()
 {
 	// Basically, only allow processing of a specific UI element so that we check if the cursor is within the bounds of an object and then process it's logic
-	for (auto it = BaseUserInterfaceElement::elements.begin(); it != BaseUserInterfaceElement::elements.end(); it++) 
+	for (auto& element : uiElements)
 	{
-		BaseUserInterfaceElement* element = (*it);
 
 		element->drawUI();
 		// If we have our mouse hovered over something, process it and only it

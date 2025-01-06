@@ -3,7 +3,7 @@
 #include "BaseUserInterfaceElement.h"
 #include <functional> 
 
-class UISlider : BaseUserInterfaceElement
+class UISlider : public BaseUserInterfaceElement
 {
 public:
 	UISlider(std::string label, float min, float max, int posX, int posY, int width, int height);
