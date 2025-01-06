@@ -11,7 +11,7 @@ public:
 	virtual void drawUI();
 	virtual std::string getType();
 	inline void addListener(std::function<void()> func) { listeners.push_back(func); }
-
+	void setLabel(std::string newLabel);
 protected:
 	bool isDown;
 	std::string buttonLabel;

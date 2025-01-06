@@ -3,8 +3,8 @@
 UISlider::UISlider(std::string label, float min, float max, int posX, int posY, int width, int height)
 	: BaseUserInterfaceElement(posX, posY, width, height)
 {
-	defaultValue = 0.0f;
-	currentValue = NULL;
+	defaultValue = max /2 ;
+	currentValue = std::make_shared<float>(defaultValue);
 
 	sliderMin = min; 
 	sliderMax = max;
@@ -89,7 +89,7 @@ void UISlider::drawUI()
 		glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
 		glLineWidth(2.0f);
 	}
-
+	// Drawing a yellow box if we aren't dragging but hovering
 	else if (isMouseInside == true  && isDragging == false)
 	{
 		glColor4f(1.0f, 1.0f, 0.0f, 1.0f);
@@ -117,11 +117,11 @@ void UISlider::drawUI()
 		glVertex2d(currentX + 5, posY + height);
 	glEnd();
 
-	// Text rendering - different to the button. We need two renders.
+	/*		Text rendering - different to the button.We need two renders.		*/
 	// One that doesn't change saying 'Current Value: ' and the other will be updated by the current value
 
 	int yOffset = height + 10.f; // Offsetting the text rendering to 10 pixels plus the height of the slider so it sits just above the slider
-	BitmapInfo info = writeText(sliderLabel.c_str(), (width / 4), height, 18);
+	BitmapInfo info = writeText(sliderLabel.c_str(), (width / 2), height, 18);
 
 	// We can't assume that these aren't already enabled/disabled
 	glEnable(GL_TEXTURE_2D);
@@ -161,7 +161,7 @@ void UISlider::drawUI()
 
 	glEnd();
 	
-	// Slider current value display
+	/*			Slider current value display			*/ 
 	// Get the previous data for text box allignment
 	BitmapInfo preBitmapInfo = info;
 

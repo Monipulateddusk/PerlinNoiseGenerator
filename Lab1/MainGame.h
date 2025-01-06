@@ -65,7 +65,6 @@ private:
 	MouseState mouseState;
 
 	std::vector<std::shared_ptr<BaseUserInterfaceElement>> uiElements;
-	float* sliderValue = new float(0);
 #pragma endregion
 
 

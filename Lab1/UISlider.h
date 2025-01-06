@@ -18,17 +18,7 @@ public:
 
 	inline void addListener(std::function<void()>func) { listeners.push_back(func); }
 
-	inline float getCurrentValue() 
-	{	
-		if (currentValue != nullptr && currentValue) 
-		{ 
-			return *currentValue; 
-		}	
-		else {
-			std::cerr << "Error: currentValue is null!" << std::endl;
-			return 0.0f; // Default value
-		}
-	}
+	inline float getCurrentValue() { return *currentValue; };
 
 protected:
 	float defaultValue;

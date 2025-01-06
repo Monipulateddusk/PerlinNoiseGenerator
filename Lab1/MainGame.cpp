@@ -25,23 +25,6 @@ MainGame::MainGame()
 MainGame::~MainGame()
 {
 	delete monkey;
-	delete sliderValue;
-
-	//for (auto it = BaseUserInterfaceElement::elements.begin(); it != BaseUserInterfaceElement::elements.end(); )
-	//{
-	//	if (*it != nullptr) {
-	//		std::cout << "Processing element at iterator: " << *it << std::endl;
-
-	//		*it = nullptr;
-	//	}
-	//	// Erase the element and move to the next
-	//	it = BaseUserInterfaceElement::elements.erase(it);
-
-	//	// Optionally print the size of the list after each erase
-	//	std::cout << "Remaining elements in list: " << BaseUserInterfaceElement::elements.size() << std::endl;
-	//}
-
-	
 }
 
 void MainGame::run()
@@ -125,25 +108,34 @@ void MainGame::initQuadVAO()
 /// -	Declare object as shared pointer
 /// -	Declare the Lambda event
 /// -	Add the shared pointer to the vector
-/// </summary>
+/// 
+/// OpenAI assisted with getting the lambda event declaration working syntaxically
+/// /// </summary>
 void MainGame::initUI()
 {
 	// Had odd occourance where the pointer given by the static inside the baseUserInterfaceElement was causing corrupted pointers when some events tried to fire
 	// Converting to smart pointers seemed to fix it
 	int origin = (_gameDisplay.getWidth() / 3) * 1.81;
+	int yOrigin = (_gameDisplay.getHeight());
 
-	/*	Generate Perlin Button	*/
-	auto button = std::make_shared<UIButton>("Generate Perlin", 100, 200, 200, 50);
-	button->addListener([]() {std::cout << "EVENT WHOOO!!!" << std::endl;});
-	uiElements.push_back(std::static_pointer_cast<BaseUserInterfaceElement>(button));
 
-	/*	Generate Perlin Button	*/
-	auto slider = std::make_shared<UISlider>("Seed", -1, 1, origin, 40, 400, 20);
-	slider->setValue(*sliderValue);
+	/*	Seed Slider	*/
+	yOrigin -= 70;
+	std::shared_ptr<UISlider> slider = std::make_shared<UISlider>("Seed", -1, 1, origin, yOrigin, 400, 20);
+	slider->addListener([&slider]()
+		{
+			float currentValue = slider->getCurrentValue();
+			std::cout << "Current value of slider is: " << currentValue << std::endl;
+		}
+	);
+	uiElements.push_back(std::static_pointer_cast<BaseUserInterfaceElement>(slider));
+
+	/*	Amplitude Slider	*/
+	yOrigin -= 70;
+	slider = std::make_shared<UISlider>("Amplitude", -1, 1, origin, yOrigin, 400, 20);
 	slider->addListener([&slider]()
 		{
 			if (slider != nullptr) {
-				std::cout << "Interacting with Slider" << std::endl;
 				float currentValue = slider->getCurrentValue();
 				std::cout << "Current value of slider is: " << currentValue << std::endl;
 			}
@@ -154,6 +146,50 @@ void MainGame::initUI()
 	);
 	uiElements.push_back(std::static_pointer_cast<BaseUserInterfaceElement>(slider));
 
+	/*	Frequency Slider	*/
+	yOrigin -= 70;
+	slider = std::make_shared<UISlider>("Frequency", -1, 1, origin, yOrigin, 400, 20);
+	slider->addListener([&slider]()
+		{
+			if (slider != nullptr) {
+				float currentValue = slider->getCurrentValue();
+				std::cout << "Current value of slider is: " << currentValue << std::endl;
+			}
+			else {
+				std::cerr << "Slider or currentValue is null!" << std::endl;
+			}
+		}
+	);
+	uiElements.push_back(std::static_pointer_cast<BaseUserInterfaceElement>(slider));
+
+	/*	Ocative Slider	*/
+	yOrigin -= 70;
+	slider = std::make_shared<UISlider>("Ocative Count", -1, 1, origin, yOrigin, 400, 20);
+	slider->addListener([&slider]()
+		{
+			if (slider != nullptr) {
+				float currentValue = slider->getCurrentValue();
+				std::cout << "Current value of slider is: " << currentValue << std::endl;
+			}
+			else {
+				std::cerr << "Slider or currentValue is null!" << std::endl;
+			}
+		}
+	);
+	uiElements.push_back(std::static_pointer_cast<BaseUserInterfaceElement>(slider));
+
+	/*	Generate Perlin Button	*/
+	yOrigin -= 120;
+	origin += 125.f;
+	std::shared_ptr<UIButton> button = std::make_shared<UIButton>("Show Sphere", origin, yOrigin, 200, 50);
+	button->addListener([]() {std::cout << "EVENT WHOOO!!!" << std::endl;});
+	uiElements.push_back(std::static_pointer_cast<BaseUserInterfaceElement>(button));
+
+	/*	Show Different Model Button	*/
+	yOrigin -= 90;
+	button = std::make_shared<UIButton>("Generate Perlin", origin, yOrigin, 200, 50);
+	button->addListener([]() {std::cout << "EVENT WHOOO!!!" << std::endl;});
+	uiElements.push_back(std::static_pointer_cast<BaseUserInterfaceElement>(button));
 }
 
 void MainGame::gameLoop()
