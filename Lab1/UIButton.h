@@ -15,6 +15,7 @@ public:
 protected:
 	bool isDown;
 	std::string buttonLabel;
+	GLuint texture;
 
 	void processInteractEvent();
 };

@@ -1,5 +1,6 @@
 #pragma once
 #include "DEFINITIONS.h"
+#include "stb_truetype.h"
 
 struct MouseState 
 {
@@ -13,6 +14,25 @@ struct MouseState
 
 		mouseXPos = 0;
 		mouseYPos = 0;
+	}
+};
+
+struct BitmapInfo {
+	unsigned char* bitmap;
+	int b_w; // Bitmap width
+	int b_h; // Bitmap height
+	int l_h; // Line height
+
+	BitmapInfo() {
+		bitmap = nullptr;
+		b_w = 0; b_h = 0; l_h = 0;
+	}
+
+	BitmapInfo(unsigned char* b, int w, int h, int lh) {
+		bitmap = b;
+		b_w = w;
+		b_h = h;
+		l_h = lh;
 	}
 };
 
@@ -40,9 +60,14 @@ protected:
 
 	bool isMouseInside;
 	int posX, posY, width, height;
+	stbtt_fontinfo fontInfo;
 
 	// ChatGPT aided with the syntax for all of this. First time using lambdas which I just wanted a nice and flexible way to handle the events for UI
 	std::vector<std::function<void()>> listeners;
+
+	void initFont();
+	BitmapInfo writeText(const char* text, int b_w = 512, int b_h = 128, int l_h = 20);
+
 };
 
 BaseUserInterfaceElement* addElement(BaseUserInterfaceElement* element);

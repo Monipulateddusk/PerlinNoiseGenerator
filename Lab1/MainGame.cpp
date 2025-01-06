@@ -87,7 +87,7 @@ void MainGame::initSystems()
 
 	noiseGen.CreatePerlinNoiseTexture();
 
-	UIButton* button = new UIButton("Button", _gameDisplay.getWidth() /2 , _gameDisplay.getHeight() / 2, 200, 50);
+	UIButton* button = new UIButton("Generate Perlin", _gameDisplay.getWidth() /2 , _gameDisplay.getHeight() / 2, 200, 50);
 
 	button->addListener([]() {std::cout << "EVENT WHOOO!!!" << std::endl;});
 
@@ -417,11 +417,6 @@ void MainGame::drawGame()
 
 	// Swap the buffer
 	_gameDisplay.swapBuffer();
-}
-
-void MainGame::TestEvent()
-{
-	std::cout << "EVENT WORKS, WHOOOOOO!" << std::endl;
 }
 
 

@@ -41,8 +41,6 @@ private:
 	void drawUIElements();
 	void drawGame();
 
-	void TestEvent();
-
 	Display _gameDisplay;
 	GameState _gameState;
 

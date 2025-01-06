@@ -10,6 +10,9 @@ UISlider::UISlider(std::string label, float min, float max, int posX, int posY, 
 	sliderMax = max;
 	sliderLabel = label;
 	isDragging = false;
+
+	// Generate the texture so we aren't doing it every frame
+	glGenTextures(1, &texture);
 }
 
 void UISlider::setValue(float* v)
@@ -103,6 +106,100 @@ void UISlider::drawUI()
 		glVertex2d(currentX, posY + height);
 		glVertex2d(currentX + 5, posY + height);
 	glEnd();
+
+	// Text rendering - different to the button. We need two renders.
+	// One that doesn't change saying 'Current Value: ' and the other will be updated by the current value
+
+	int yOffset = height + 10.f; // Offsetting the text rendering to 10 pixels plus the height of the slider so it sits just above the slider
+	BitmapInfo info = writeText(sliderLabel.c_str(), width, height, 18);
+
+	// We can't assume that these aren't already enabled/disabled
+	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // wrap texture outside width
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // wrap texture outside height
+
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // linear filtering for minification (texture is smaller than area)
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // linear filtering for magnifcation (texture is larger)
+
+	/*	Generating the texture image data using the bitmap data for the text rendering */
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, info.b_w, info.b_h, 0, GL_RGBA, GL_UNSIGNED_BYTE, info.bitmap);
+
+	/*	Generate the texture that the text will render onto by taking the texture data | We need to flip it as text for some reason rendered upside down */
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glBegin(GL_QUADS);
+		/*		The text ordinarally is flipped along the Y. Thus, we need to flip the texture coords of the square		*/
+		// Tex coords - Top Left | Vertex origin of 0,0
+		glTexCoord2f(0.0f, 1.0f);
+		glVertex2d(posX, posY+ yOffset);
+
+		// Tex coords - Top right | Vertex origin of 1,0
+		glTexCoord2f(1.0f, 1.0f);
+		glVertex2d(posX + width, posY+ yOffset);
+
+		// Tex coords - Bottom Right | Vertex origin of 1,1
+		glTexCoord2f(1.0f, 0.0f);
+		glVertex2d(posX + width, posY + height+ yOffset);
+
+		// Tex coords - Bottom Left | Vertex origin of 0,1
+		glTexCoord2f(0.0f, 0.0f);
+		glVertex2d(posX, posY + height+ yOffset);
+
+	glEnd();
+
+	glDisable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	BitmapInfo preBitmapInfo = info;
+	char* curVal = (char*)currentValue;
+	info = writeText(curVal, width, height, 18);
+
+	// We can't assume that these aren't already enabled/disabled
+	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // wrap texture outside width
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // wrap texture outside height
+
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // linear filtering for minification (texture is smaller than area)
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // linear filtering for magnifcation (texture is larger)
+
+	/*	Generating the texture image data using the bitmap data for the text rendering */
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, info.b_w, info.b_h, 0, GL_RGBA, GL_UNSIGNED_BYTE, info.bitmap);
+
+	/*	Generate the texture that the text will render onto by taking the texture data | We need to flip it as text for some reason rendered upside down */
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glBegin(GL_QUADS);
+	/*		The text ordinarally is flipped along the Y. Thus, we need to flip the texture coords of the square		*/
+	// Tex coords - Top Left | Vertex origin of 0,0
+	glTexCoord2f(0.0f, 1.0f);
+	glVertex2d(posX, posY + yOffset);
+
+	// Tex coords - Top right | Vertex origin of 1,0
+	glTexCoord2f(1.0f, 1.0f);
+	glVertex2d(posX + width, posY + yOffset);
+
+	// Tex coords - Bottom Right | Vertex origin of 1,1
+	glTexCoord2f(1.0f, 0.0f);
+	glVertex2d(posX + width, posY + height + yOffset);
+
+	// Tex coords - Bottom Left | Vertex origin of 0,1
+	glTexCoord2f(0.0f, 0.0f);
+	glVertex2d(posX, posY + height + yOffset);
+
+	glEnd();
+
+	glDisable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+
 
 }
 

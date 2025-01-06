@@ -28,6 +28,7 @@ protected:
 	bool isDragging;
 
 	std::string sliderLabel;
+	GLuint texture;
 
 	void processInteractEvent();
 };

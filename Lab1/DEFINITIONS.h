@@ -10,6 +10,7 @@
 #include <random>
 #include <list>
 #include <vector>
+#include <functional>
 
 // ---- OPENGL LIBS ----
 #include <GL\glew.h>
