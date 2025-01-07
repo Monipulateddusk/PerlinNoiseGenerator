@@ -121,22 +121,22 @@ void MainGame::initUI()
 
 	/*	Seed Slider	*/
 	yOrigin -= 70;
-	std::shared_ptr<UISlider> slider = std::make_shared<UISlider>("Seed", -1, 1, origin, yOrigin, 400, 20);
-	slider->addListener([&slider]()
+	std::shared_ptr<UISlider> seedSlider = std::make_shared<UISlider>("Seed", 1, 10000, false, origin, yOrigin, 400, 20);
+	seedSlider->addListener([seedSlider]()
 		{
-			float currentValue = slider->getCurrentValue();
+			float currentValue = seedSlider->getCurrentValue();
 			std::cout << "Current value of slider is: " << currentValue << std::endl;
 		}
 	);
-	uiElements.push_back(std::static_pointer_cast<BaseUserInterfaceElement>(slider));
+	uiElements.push_back(std::static_pointer_cast<BaseUserInterfaceElement>(seedSlider));
 
 	/*	Amplitude Slider	*/
 	yOrigin -= 70;
-	slider = std::make_shared<UISlider>("Amplitude", -1, 1, origin, yOrigin, 400, 20);
-	slider->addListener([&slider]()
+	std::shared_ptr<UISlider> ampSlider = std::make_shared<UISlider>("Amplitude", 1, 6, true, origin, yOrigin, 400, 20);
+	ampSlider->addListener([ampSlider]()
 		{
-			if (slider != nullptr) {
-				float currentValue = slider->getCurrentValue();
+			if (ampSlider != nullptr) {
+				float currentValue = ampSlider->getCurrentValue();
 				std::cout << "Current value of slider is: " << currentValue << std::endl;
 			}
 			else {
@@ -144,15 +144,15 @@ void MainGame::initUI()
 			}
 		}
 	);
-	uiElements.push_back(std::static_pointer_cast<BaseUserInterfaceElement>(slider));
+	uiElements.push_back(std::static_pointer_cast<BaseUserInterfaceElement>(ampSlider));
 
 	/*	Frequency Slider	*/
 	yOrigin -= 70;
-	slider = std::make_shared<UISlider>("Frequency", -1, 1, origin, yOrigin, 400, 20);
-	slider->addListener([&slider]()
+	std::shared_ptr<UISlider> freqSlider = std::make_shared<UISlider>("Frequency", 0.001f, 3.00f, true, origin, yOrigin, 400, 20);
+	freqSlider->addListener([freqSlider]()
 		{
-			if (slider != nullptr) {
-				float currentValue = slider->getCurrentValue();
+			if (freqSlider != nullptr) {
+				float currentValue = freqSlider->getCurrentValue();
 				std::cout << "Current value of slider is: " << currentValue << std::endl;
 			}
 			else {
@@ -160,15 +160,15 @@ void MainGame::initUI()
 			}
 		}
 	);
-	uiElements.push_back(std::static_pointer_cast<BaseUserInterfaceElement>(slider));
+	uiElements.push_back(std::static_pointer_cast<BaseUserInterfaceElement>(freqSlider));
 
 	/*	Ocative Slider	*/
 	yOrigin -= 70;
-	slider = std::make_shared<UISlider>("Ocative Count", -1, 1, origin, yOrigin, 400, 20);
-	slider->addListener([&slider]()
+	std::shared_ptr<UISlider> octSlider = std::make_shared<UISlider>("Ocative Count", 1, 16, false, origin, yOrigin, 400, 20);
+	octSlider->addListener([octSlider]()
 		{
-			if (slider != nullptr) {
-				float currentValue = slider->getCurrentValue();
+			if (octSlider != nullptr) {
+				float currentValue = octSlider->getCurrentValue();
 				std::cout << "Current value of slider is: " << currentValue << std::endl;
 			}
 			else {
@@ -176,7 +176,7 @@ void MainGame::initUI()
 			}
 		}
 	);
-	uiElements.push_back(std::static_pointer_cast<BaseUserInterfaceElement>(slider));
+	uiElements.push_back(std::static_pointer_cast<BaseUserInterfaceElement>(octSlider));
 
 	/*	Generate Perlin Button	*/
 	yOrigin -= 120;

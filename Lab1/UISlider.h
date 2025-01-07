@@ -6,7 +6,7 @@
 class UISlider : public BaseUserInterfaceElement
 {
 public:
-	UISlider(std::string label, float min, float max, int posX, int posY, int width, int height);
+	UISlider(std::string label, float min, float max, bool isFloat ,int posX, int posY, int width, int height);
 	~UISlider();
 	void setValue(float v);
 
@@ -25,7 +25,7 @@ protected:
 	float sliderMin, sliderMax;
 	std::shared_ptr<float> currentValue;
 
-	bool isDragging;
+	bool isDragging, isFloatValue;
 
 	std::string sliderLabel;
 	GLuint texture;
