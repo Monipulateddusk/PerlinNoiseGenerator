@@ -73,7 +73,7 @@ private:
 	Texture noiseTexture, lavaTexture;
 
 	Skybox skybox;
-	GameObject* monkey;
+	GameObject* monkey, *cube;
 
 	PerlinNoiseGenerator noiseGen;
 

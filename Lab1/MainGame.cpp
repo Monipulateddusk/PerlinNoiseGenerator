@@ -25,6 +25,7 @@ MainGame::MainGame()
 MainGame::~MainGame()
 {
 	delete monkey;
+	delete cube;
 }
 
 void MainGame::run()
@@ -38,6 +39,7 @@ void MainGame::initSystems()
 	_gameDisplay.initDisplay(); 
 
 	monkey = new GameObject("..\\res\\monkey3.obj", "..\\res\\bricks.jpg");
+	cube = new GameObject("..\\res\\cube.obj", "..\\res\\PerlinNoise\\GeneratedPerlinNoise.png");
 
 	lavaTexture.init("..\\res\\lava3.jpg");
 	noiseTexture.init("..\\res\\noise.png");
