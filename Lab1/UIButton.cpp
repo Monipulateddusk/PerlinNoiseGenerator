@@ -120,6 +120,11 @@ std::string UIButton::getType()
 	return "button";
 }
 
+void UIButton::setLabel(std::string newLabel)
+{
+	buttonLabel = newLabel;
+}
+
 void UIButton::processInteractEvent()
 {
 	for (const auto& listener : listeners) {

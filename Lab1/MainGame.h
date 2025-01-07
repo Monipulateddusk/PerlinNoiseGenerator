@@ -23,6 +23,7 @@ private:
 
 	void initSystems();
 	void initQuadVAO();
+	void initUI();
 
 	void processInput();
 	void update();
@@ -38,6 +39,7 @@ private:
 	void renderSkybox();
 	void renderActiveShader();
 	
+	void drawBackgroundUI();
 	void drawUIElements();
 	void drawGame();
 
@@ -59,10 +61,10 @@ private:
 	#pragma endregion
 
 #pragma region UI
-	BaseUserInterfaceElement* elementSelected;
+	std::shared_ptr<BaseUserInterfaceElement> elementSelected;
 	MouseState mouseState;
 
-	float sliderValue = 0.5f;
+	std::vector<std::shared_ptr<BaseUserInterfaceElement>> uiElements;
 #pragma endregion
 
 
