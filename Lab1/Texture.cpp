@@ -3,10 +3,14 @@
 #include <cassert>
 #include <iostream>
 
-void Texture::init(const std::string& fileName)
+void Texture::init(const std::string& fileName, bool isOneChannel)
 {
+	int channels = 4;
+	if (isOneChannel) { channels = 3; }
 	int width, height, numComponents; //width, height, and no of components of image
-	unsigned char* imageData = stbi_load((fileName).c_str(), &width, &height, &numComponents, 4); //load the image and store the data
+
+	std::cout << "Loading image with file path: " << fileName << std::endl;
+	unsigned char* imageData = stbi_load((fileName).c_str(), &width, &height, &numComponents, channels); //load the image and store the data
 
 	if (imageData == NULL)
 	{
@@ -22,7 +26,12 @@ void Texture::init(const std::string& fileName)
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // linear filtering for minification (texture is smaller than area)
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // linear filtering for magnifcation (texture is larger)
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData); //Target, Mipmapping Level, Pixel Format, Width, Height, Border Size, Input Format, Data Type of Texture, Image Data
+	if(isOneChannel){
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, imageData); //Target, Mipmapping Level, Pixel Format, Width, Height, Border Size, Input Format, Data Type of Texture, Image Data
+	}
+	else {
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData); //Target, Mipmapping Level, Pixel Format, Width, Height, Border Size, Input Format, Data Type of Texture, Image Data
+	}
 
 	stbi_image_free(imageData);
 }

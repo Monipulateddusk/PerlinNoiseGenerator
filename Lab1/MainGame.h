@@ -38,6 +38,8 @@ private:
 	void renderMonkey();
 	void renderSkybox();
 	void renderActiveShader();
+
+	void setPerlinNoiseTexture();
 	
 	void drawBackgroundUI();
 	void drawUIElements();
@@ -77,15 +79,9 @@ private:
 
 	PerlinNoiseGenerator noiseGen;
 
-
-	
-	//Mesh mesh1;
-	//Mesh mesh2;
 	Camera myCamera;
-	//Texture texture; 
 
 	FrameBufferObject* FBO;
-	//Transform transform;
 	GLuint quadVAO;
 	GLuint quadVBO;
 

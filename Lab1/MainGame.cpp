@@ -38,8 +38,11 @@ void MainGame::initSystems()
 {
 	_gameDisplay.initDisplay(); 
 
-	monkey = new GameObject("..\\res\\monkey3.obj", "..\\res\\bricks.jpg");
-	cube = new GameObject("..\\res\\cube.obj", "..\\res\\PerlinNoise\\GeneratedPerlinNoise.png");
+	monkey = new GameObject("..\\res\\monkey3.obj", "..\\res\\PerlinNoise\\GeneratedPerlinNoise.png");
+	cube = new GameObject("..\\res\\cube.obj", "..\\res\\PerlinNoise\\GeneratedPerlinNoise.png", true);
+
+	generatedPerlinNoiseTexture.init("..\\res\\PerlinNoise\\GeneratedPerlinNoise.png", true);
+
 
 	lavaTexture.init("..\\res\\lava3.jpg");
 	noiseTexture.init("..\\res\\noise.png");
@@ -179,6 +182,7 @@ void MainGame::initUI()
 	button->addListener([this]() 
 		{
 			noiseGen.CreatePerlinNoiseTexture();
+			setPerlinNoiseTexture();
 		}
 	);
 	uiElements.push_back(std::static_pointer_cast<BaseUserInterfaceElement>(button));
@@ -366,12 +370,20 @@ void MainGame::renderActiveShader()
 	}
 }
 
+void MainGame::setPerlinNoiseTexture()
+{
+	Texture temp;
+	temp.init("..\\res\\PerlinNoise\\GeneratedPerlinNoise.png", true);
+
+	generatedPerlinNoiseTexture = temp;
+}
+
 void MainGame::drawBackgroundUI()
 {
 	// Draw background
 	// If the origin is the bottom left, the origin of the quad would be 2/3 into the total screen size
 	int origin = (_gameDisplay.getWidth() / 3) * 1.8f;
-	glColor4f(0.2f, 0.2f, 0.2f, 1.f);
+	glColor4f(0.3f, 0.3f, 0.3f, 1.f);
 
 	// Base drawing of the button's quad
 	glBegin(GL_QUADS);
@@ -387,7 +399,6 @@ void MainGame::drawUIElements()
 	// Basically, only allow processing of a specific UI element so that we check if the cursor is within the bounds of an object and then process it's logic
 	for (auto& element : uiElements)
 	{
-
 		element->drawUI();
 		// If we have our mouse hovered over something, process it and only it
 		if (element->updateUI(mouseState, _gameDisplay.getHeight())) {
@@ -407,9 +418,13 @@ void MainGame::drawGeneratedPerlinNoise()
 {
 	int originX = ((_gameDisplay.getWidth() / 3) * 1.8f) + 76;
 	int originY = 10;
-	//glBindTexture(GL_TEXTURE_2D, generatedPerlinNoiseTexture.ID());
+
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, generatedPerlinNoiseTexture.ID());
+
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 	glBegin(GL_QUADS);
+		// Tex coords - Top Left | Vertex origin of 0,0
 		glTexCoord2f(0.0f, 1.0f);
 		glVertex2d(originX, originY);
 
@@ -426,6 +441,7 @@ void MainGame::drawGeneratedPerlinNoise()
 		glVertex2d(originX, originY + 256);
 
 	glEnd();
+	glDisable(GL_TEXTURE_2D);
 }
 
 void MainGame::drawGame()

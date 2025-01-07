@@ -6,7 +6,7 @@
 class GameObject
 {
 public:
-	GameObject(const std::string& meshFilePath, const std::string& textureFilePath);
+	GameObject(const std::string& meshFilePath, const std::string& textureFilePath, bool isOneChannel = false);
 	~GameObject();
 	Mesh mesh;
 	Texture texture;
