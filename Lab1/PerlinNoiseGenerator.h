@@ -9,8 +9,8 @@
 class PerlinNoiseGenerator
 {
 public:
-    PerlinNoiseGenerator() : seed(defaultSeed), p_table{}, userSelectedOcativeCount(2), userSelectedAmp(1.0f), userSelectedFreq(1.0f) {}
-    PerlinNoiseGenerator(unsigned int& seedVal) : seed(seedVal), p_table {}, userSelectedOcativeCount(2), userSelectedAmp(1.0f), userSelectedFreq(1.0f) {}
+    PerlinNoiseGenerator() : seed(defaultSeed), p_table{}, userSelectedOcativeCount(12), userSelectedAmp(1.0f), userSelectedFreq(1.0f) {}
+    PerlinNoiseGenerator(unsigned int& seedVal) : seed(seedVal), p_table {}, userSelectedOcativeCount(12), userSelectedAmp(1.0f), userSelectedFreq(1.0f) {}
 	~PerlinNoiseGenerator(){}
 
     const float& Noise2D(const float& x, const float& y, const int& octavesNum);

@@ -112,7 +112,7 @@ void UIButton::drawUI()
 
 	glDisable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, 0);
-
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f); // Reset the colour to white
 }
 
 std::string UIButton::getType()
