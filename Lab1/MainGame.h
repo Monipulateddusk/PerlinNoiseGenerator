@@ -41,6 +41,7 @@ private:
 	
 	void drawBackgroundUI();
 	void drawUIElements();
+	void drawGeneratedPerlinNoise();
 	void drawGame();
 
 	Display _gameDisplay;
@@ -65,6 +66,7 @@ private:
 	MouseState mouseState;
 
 	std::vector<std::shared_ptr<BaseUserInterfaceElement>> uiElements;
+	Texture generatedPerlinNoiseTexture;
 #pragma endregion
 
 

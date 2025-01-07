@@ -166,7 +166,7 @@ void MainGame::initUI()
 
 	/*	Generate Perlin Button	*/
 	yOrigin -= 120;
-	origin += 125.f;
+	origin += 104.f;
 	std::shared_ptr<UIButton> button = std::make_shared<UIButton>("Show Sphere", origin, yOrigin, 200, 50);
 	button->addListener([]() {std::cout << "EVENT WHOOO!!!" << std::endl;});
 	uiElements.push_back(std::static_pointer_cast<BaseUserInterfaceElement>(button));
@@ -216,23 +216,6 @@ void MainGame::processInput()
 					case SDLK_s:
 						// Switch between the different shaders
 						isADSEnabled = !isADSEnabled;
-
-						break;
-
-
-					case SDLK_RIGHT: // Increment the seed value on the perlin noise generator
-						perlinNoiseSeedValue++;
-						break;
-
-					case SDLK_LEFT: // Decrement the seed value on the perlin noise generator
-						perlinNoiseSeedValue == 0 ? perlinNoiseSeedValue = 0 : perlinNoiseSeedValue--;
-						break;
-
-					case SDLK_BACKSPACE:
-						system("cls");
-						std::cout << "BACKSPACE KEY PRESSED" << std::endl;
-						noiseGen.setSeedValue(perlinNoiseSeedValue);
-						noiseGen.CreatePerlinNoiseTexture();
 						break;
 
 					case SDLK_ESCAPE:
@@ -418,6 +401,31 @@ void MainGame::drawUIElements()
 	}
 }
 
+void MainGame::drawGeneratedPerlinNoise()
+{
+	int originX = ((_gameDisplay.getWidth() / 3) * 1.8f) + 76;
+	int originY = 10;
+	//glBindTexture(GL_TEXTURE_2D, generatedPerlinNoiseTexture.ID());
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+	glBegin(GL_QUADS);
+		glTexCoord2f(0.0f, 1.0f);
+		glVertex2d(originX, originY);
+
+		// Tex coords - Top right | Vertex origin of 1,0
+		glTexCoord2f(1.0f, 1.0f);
+		glVertex2d(originX + 256, originY);
+
+		// Tex coords - Bottom Right | Vertex origin of 1,1
+		glTexCoord2f(1.0f, 0.0f);
+		glVertex2d(originX + 256, originY + 256);
+
+		// Tex coords - Bottom Left | Vertex origin of 0,1
+		glTexCoord2f(0.0f, 0.0f);
+		glVertex2d(originX, originY + 256);
+
+	glEnd();
+}
+
 void MainGame::drawGame()
 {
 	_gameDisplay.clearDisplay(1.0f, 1.0f, 1.0f, 1.0f);
@@ -455,6 +463,7 @@ void MainGame::drawGame()
 
 	drawBackgroundUI();
 	drawUIElements();
+	drawGeneratedPerlinNoise();
 
 	// Restore matrices
 	glPopMatrix();               // Restore modelview matrix
