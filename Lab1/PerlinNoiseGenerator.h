@@ -9,8 +9,8 @@
 class PerlinNoiseGenerator
 {
 public:
-    PerlinNoiseGenerator() : seed(defaultSeed), p_table{} {}
-    PerlinNoiseGenerator(unsigned int& seedVal) : seed(seedVal), p_table {} {}
+    PerlinNoiseGenerator() : seed(defaultSeed), p_table{}, userSelectedOcativeCount(2), userSelectedAmp(1.0f), userSelectedFreq(1.0f) {}
+    PerlinNoiseGenerator(unsigned int& seedVal) : seed(seedVal), p_table {}, userSelectedOcativeCount(2), userSelectedAmp(1.0f), userSelectedFreq(1.0f) {}
 	~PerlinNoiseGenerator(){}
 
     const float& Noise2D(const float& x, const float& y, const int& octavesNum);
@@ -19,8 +19,18 @@ public:
     void CreatePerlinNoiseTexture();
     void DebuggingOutputToConsole(const int& width, const int& height, const unsigned int& seedValue);
 
-    const void SetSeedValue(const unsigned int& seedValue) const;
+    const unsigned int& getSeedValue() const;
+    const int& getOcativeCount() const;
+    const float& getAmpCount() const;
+    const float& getFreqCount() const;
     inline const Texture GetTexture() const { return perlinNoiseTexture; }
+
+    const void setSeedValue(unsigned int& seedValue);
+    const void setOcativeCount(int& octValue);
+    const void setAmpCount(float& ampValue);
+    const void setFreqCount(float& freqValue);
+
+
 
 private:
     Texture perlinNoiseTexture;
@@ -39,7 +49,8 @@ private:
 
     glm::vec2 pre_topLeft, pre_topRight, pre_botLeft, pre_botRight;
     int pre_aa =0, pre_ab = 0, pre_ba = 0, pre_bb = 0;
-
+    int userSelectedOcativeCount;
+    float userSelectedAmp, userSelectedFreq;
 
 
     // Declared to reduce computation for continual use. 

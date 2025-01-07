@@ -67,9 +67,6 @@ void MainGame::initSystems()
 
 	noiseGen.CreatePerlinNoiseTexture();
 	initUI();
-
-	// Uncomment if we are doing camera movement
-	// SDL_SetRelativeMouseMode(SDL_TRUE);
 }
 
 void MainGame::initQuadVAO()
@@ -121,27 +118,24 @@ void MainGame::initUI()
 
 	/*	Seed Slider	*/
 	yOrigin -= 70;
-	std::shared_ptr<UISlider> seedSlider = std::make_shared<UISlider>("Seed", 1, 10000, false, origin, yOrigin, 400, 20);
-	seedSlider->addListener([seedSlider]()
+	std::shared_ptr<UISlider> seedSlider = std::make_shared<UISlider>("Seed", 1.0f, 10000.0f, false, origin, yOrigin, 400, 20);
+	seedSlider->setValue(noiseGen.getSeedValue());
+	seedSlider->addListener([seedSlider, this]()
 		{
-			float currentValue = seedSlider->getCurrentValue();
-			std::cout << "Current value of slider is: " << currentValue << std::endl;
+			unsigned int seed = seedSlider->getCurrentValue();
+			noiseGen.setSeedValue(seed);
 		}
 	);
 	uiElements.push_back(std::static_pointer_cast<BaseUserInterfaceElement>(seedSlider));
 
 	/*	Amplitude Slider	*/
 	yOrigin -= 70;
-	std::shared_ptr<UISlider> ampSlider = std::make_shared<UISlider>("Amplitude", 1, 6, true, origin, yOrigin, 400, 20);
-	ampSlider->addListener([ampSlider]()
+	std::shared_ptr<UISlider> ampSlider = std::make_shared<UISlider>("Amplitude", 1.0f, 6.0f, true, origin, yOrigin, 400, 20);
+	ampSlider->setValue(noiseGen.getAmpCount());
+	ampSlider->addListener([ampSlider, this]()
 		{
-			if (ampSlider != nullptr) {
-				float currentValue = ampSlider->getCurrentValue();
-				std::cout << "Current value of slider is: " << currentValue << std::endl;
-			}
-			else {
-				std::cerr << "Slider or currentValue is null!" << std::endl;
-			}
+			float ampCount = ampSlider->getCurrentValue();
+			noiseGen.setAmpCount(ampCount);
 		}
 	);
 	uiElements.push_back(std::static_pointer_cast<BaseUserInterfaceElement>(ampSlider));
@@ -149,31 +143,23 @@ void MainGame::initUI()
 	/*	Frequency Slider	*/
 	yOrigin -= 70;
 	std::shared_ptr<UISlider> freqSlider = std::make_shared<UISlider>("Frequency", 0.001f, 3.00f, true, origin, yOrigin, 400, 20);
-	freqSlider->addListener([freqSlider]()
+	freqSlider->setValue(noiseGen.getFreqCount());
+	freqSlider->addListener([freqSlider, this]()
 		{
-			if (freqSlider != nullptr) {
-				float currentValue = freqSlider->getCurrentValue();
-				std::cout << "Current value of slider is: " << currentValue << std::endl;
-			}
-			else {
-				std::cerr << "Slider or currentValue is null!" << std::endl;
-			}
+			float freqCount = freqSlider->getCurrentValue();
+			noiseGen.setFreqCount(freqCount);
 		}
 	);
 	uiElements.push_back(std::static_pointer_cast<BaseUserInterfaceElement>(freqSlider));
 
 	/*	Ocative Slider	*/
 	yOrigin -= 70;
-	std::shared_ptr<UISlider> octSlider = std::make_shared<UISlider>("Ocative Count", 1, 16, false, origin, yOrigin, 400, 20);
-	octSlider->addListener([octSlider]()
+	std::shared_ptr<UISlider> octSlider = std::make_shared<UISlider>("Ocative Count", 1.0f, 16.0f, false, origin, yOrigin, 400, 20);
+	octSlider->setValue(noiseGen.getOcativeCount());
+	octSlider->addListener([octSlider, this]()
 		{
-			if (octSlider != nullptr) {
-				float currentValue = octSlider->getCurrentValue();
-				std::cout << "Current value of slider is: " << currentValue << std::endl;
-			}
-			else {
-				std::cerr << "Slider or currentValue is null!" << std::endl;
-			}
+			int octCount = octSlider->getCurrentValue();
+			noiseGen.setOcativeCount(octCount);
 		}
 	);
 	uiElements.push_back(std::static_pointer_cast<BaseUserInterfaceElement>(octSlider));
@@ -188,7 +174,11 @@ void MainGame::initUI()
 	/*	Show Different Model Button	*/
 	yOrigin -= 90;
 	button = std::make_shared<UIButton>("Generate Perlin", origin, yOrigin, 200, 50);
-	button->addListener([]() {std::cout << "EVENT WHOOO!!!" << std::endl;});
+	button->addListener([this]() 
+		{
+			noiseGen.CreatePerlinNoiseTexture();
+		}
+	);
 	uiElements.push_back(std::static_pointer_cast<BaseUserInterfaceElement>(button));
 }
 
@@ -241,7 +231,7 @@ void MainGame::processInput()
 					case SDLK_BACKSPACE:
 						system("cls");
 						std::cout << "BACKSPACE KEY PRESSED" << std::endl;
-						noiseGen.SetSeedValue(perlinNoiseSeedValue);
+						noiseGen.setSeedValue(perlinNoiseSeedValue);
 						noiseGen.CreatePerlinNoiseTexture();
 						break;
 
