@@ -49,8 +49,8 @@ const float& PerlinNoiseGenerator::Noise2D(const float& x, const float& y, const
 
 const float& PerlinNoiseGenerator::FractalBrownianMotion(const float& x, const float& y, const int& octavesNum)
 {
-	float amplitude = 1.0f;
-	float frequency = 1.0f;
+	float amplitude = userSelectedAmp;
+	float frequency = userSelectedFreq;
 	float maxAmp = 0.0f;
 	float result = 0;
 
@@ -80,9 +80,7 @@ void PerlinNoiseGenerator::CreatePerlinNoiseTexture()
 	// Populate the texture data with noise values
 	for (int h = 0; h < height; h++) {
 		for (int w = 0; w < width; w++) {
-			floatData = FractalBrownianMotion(w, h, 16);
-
-			//std::cout << "Position is: X: " << w << ", " << h << " Data Output is: " << floatData << std::endl;
+			floatData = FractalBrownianMotion(w, h, userSelectedOcativeCount);
 
 			floatData = (floatData - 0) / (1 - 0);
 
@@ -99,8 +97,8 @@ void PerlinNoiseGenerator::CreatePerlinNoiseTexture()
 	//std::filesystem::path currentPath = std::filesystem::current_path();
 	//std::cout << "Current working directory: " << currentPath << std::endl;
 
-
-	int res = stbi_write_png("GeneratedPerlinNoise.png", width, height, 1, data, width * 1);
+	
+	int res = stbi_write_png("..\\res\\PerlinNoise\\GeneratedPerlinNoise.png", width, height, 1, data, width * 1);
 
 	if (res == 0) {
 		std::cout << "UNABLE TO WRITE TO FILE" << std::endl;
@@ -131,9 +129,44 @@ void PerlinNoiseGenerator::DebuggingOutputToConsole(const int& width, const int&
 	}
 }
 
-const void PerlinNoiseGenerator::SetSeedValue(const unsigned int& seedValue) const
+const unsigned int& PerlinNoiseGenerator::getSeedValue() const
+{
+	return seed;
+}
+
+const int& PerlinNoiseGenerator::getOcativeCount() const
+{
+	return userSelectedOcativeCount;
+}
+
+const float& PerlinNoiseGenerator::getAmpCount() const
+{
+	return userSelectedAmp;
+}
+
+const float& PerlinNoiseGenerator::getFreqCount() const
+{
+	return userSelectedFreq;
+}
+
+const void PerlinNoiseGenerator::setSeedValue(unsigned int& seedValue)
 {
 	seed = seedValue;
+}
+
+const void PerlinNoiseGenerator::setOcativeCount(int& octValue)
+{
+	userSelectedOcativeCount = octValue;
+}
+
+const void PerlinNoiseGenerator::setAmpCount(float& ampValue)
+{
+	userSelectedAmp = ampValue;
+}
+
+const void PerlinNoiseGenerator::setFreqCount(float& freqValue)
+{
+	userSelectedFreq = freqValue;
 }
 
 /// <summary>

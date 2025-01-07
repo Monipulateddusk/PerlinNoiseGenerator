@@ -1,6 +1,8 @@
 #pragma once
 #include "BaseUserInterfaceElement.h"
-class UIButton : BaseUserInterfaceElement
+#include <functional> 
+
+class UIButton : public BaseUserInterfaceElement
 {
 public:
 	UIButton(std::string label, int positionX, int positionY, int width, int height);
@@ -8,9 +10,12 @@ public:
 	virtual bool updateUI(MouseState& state, int screenHeight);
 	virtual void drawUI();
 	virtual std::string getType();
-
+	inline void addListener(std::function<void()> func) { listeners.push_back(func); }
+	void setLabel(std::string newLabel);
 protected:
 	bool isDown;
 	std::string buttonLabel;
-};
+	GLuint texture;
 
+	void processInteractEvent();
+};

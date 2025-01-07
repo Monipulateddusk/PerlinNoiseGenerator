@@ -92,6 +92,7 @@
   <ItemGroup>
     <ClInclude Include="BaseUserInterfaceElement.h" />
     <ClInclude Include="DEFINITIONS.h" />
+    <ClInclude Include="stb_truetype.h" />
     <ClInclude Include="UIButton.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Display.h" />

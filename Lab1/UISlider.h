@@ -1,12 +1,14 @@
 #pragma once
 #include "DEFINITIONS.h"
 #include "BaseUserInterfaceElement.h"
-class UISlider : BaseUserInterfaceElement
+#include <functional> 
+
+class UISlider : public BaseUserInterfaceElement
 {
 public:
-	UISlider(std::string label, float min, float max, int posX, int posY, int width, int height);
-
-	void setValue(float* v);
+	UISlider(std::string label, float min, float max, bool isFloat ,int posX, int posY, int width, int height);
+	~UISlider();
+	void setValue(float v);
 
 	virtual bool updateUI(MouseState& state, int screenHeight);
 
@@ -14,13 +16,20 @@ public:
 
 	virtual std::string getType();
 
+	inline void addListener(std::function<void()>func) { listeners.push_back(func); }
+
+	inline float getCurrentValue() { return *currentValue; };
+
 protected:
 	float defaultValue;
 	float sliderMin, sliderMax;
-	float* currentValue;
+	std::shared_ptr<float> currentValue;
 
-	bool isDragging;
+	bool isDragging, isFloatValue;
 
 	std::string sliderLabel;
+	GLuint texture;
+
+	void processInteractEvent();
 };
 

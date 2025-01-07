@@ -20,28 +20,11 @@ MainGame::MainGame()
 	FBO = new FrameBufferObject();
 	perlinNoiseSeedValue = 0;
 	elementSelected = NULL;
-	
 }
 
 MainGame::~MainGame()
 {
 	delete monkey;
-
-	for (auto it = BaseUserInterfaceElement::elements.begin(); it != BaseUserInterfaceElement::elements.end(); )
-	{
-		if (*it != nullptr) {
-			std::cout << "Processing element at iterator: " << *it << std::endl;
-
-			*it = nullptr;
-		}
-		// Erase the element and move to the next
-		it = BaseUserInterfaceElement::elements.erase(it);
-
-		// Optionally print the size of the list after each erase
-		std::cout << "Remaining elements in list: " << BaseUserInterfaceElement::elements.size() << std::endl;
-	}
-
-	
 }
 
 void MainGame::run()
@@ -53,8 +36,6 @@ void MainGame::run()
 void MainGame::initSystems()
 {
 	_gameDisplay.initDisplay(); 
-	//mesh1.init(vertices, sizeof(vertices) / sizeof(vertices[0]), indices, sizeof(indices) / sizeof(indices[0])); //size calcuated by number of bytes of an array / no bytes of one element
-	/*mesh2.loadModel("..\\res\\monkey3.obj");*/
 
 	monkey = new GameObject("..\\res\\monkey3.obj", "..\\res\\bricks.jpg");
 
@@ -73,8 +54,7 @@ void MainGame::initSystems()
 	glowShader.init("..\\res\\glow.vert", "..\\res\\glow.frag");
 	
 
-	/*texture.init("..\\res\\bricks.jpg"); */
-	myCamera.initCamera(glm::vec3(0, 0, -30), 70.0f, (float)_gameDisplay.getWidth()/_gameDisplay.getHeight(), 0.01f, 1000.0f);
+	myCamera.initCamera(glm::vec3(-1, 0, -30), 70.0f, (float)_gameDisplay.getWidth()/_gameDisplay.getHeight(), 0.01f, 1000.0f);
 
 	vector<string> skyboxPaths({ "..\\res\\SkyboxTextures\\right.jpg" ,"..\\res\\SkyboxTextures\\left.jpg" ,"..\\res\\SkyboxTextures\\top.jpg",
 									"..\\res\\SkyboxTextures\\bottom.jpg" ,"..\\res\\SkyboxTextures\\front.jpg" ,"..\\res\\SkyboxTextures\\back.jpg" });
@@ -86,14 +66,7 @@ void MainGame::initSystems()
 	counter = 0.0f;
 
 	noiseGen.CreatePerlinNoiseTexture();
-
-	UIButton* button = new UIButton("Button", _gameDisplay.getWidth() /2 , _gameDisplay.getHeight() / 2, 200, 50);
-	UISlider* slider = new UISlider("Slider", -1, 1, 10, 40, 500, 20);
-
-	slider->setValue(&sliderValue);
-
-	// Uncomment if we are doing camera movement
-	// SDL_SetRelativeMouseMode(SDL_TRUE);
+	initUI();
 }
 
 void MainGame::initQuadVAO()
@@ -123,6 +96,90 @@ void MainGame::initQuadVAO()
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 
 
+}
+/// <summary>
+/// All UI elements are put into a vector containing smart pointers to each UI element. 
+/// Due to polymorphism, we can correctly store it as the base component and get their overriden mechanics
+/// 
+/// Method is:
+/// -	Declare object as shared pointer
+/// -	Declare the Lambda event
+/// -	Add the shared pointer to the vector
+/// 
+/// OpenAI assisted with getting the lambda event declaration working syntaxically
+/// /// </summary>
+void MainGame::initUI()
+{
+	// Had odd occourance where the pointer given by the static inside the baseUserInterfaceElement was causing corrupted pointers when some events tried to fire
+	// Converting to smart pointers seemed to fix it
+	int origin = (_gameDisplay.getWidth() / 3) * 1.81;
+	int yOrigin = (_gameDisplay.getHeight());
+
+
+	/*	Seed Slider	*/
+	yOrigin -= 70;
+	std::shared_ptr<UISlider> seedSlider = std::make_shared<UISlider>("Seed", 1.0f, 10000.0f, false, origin, yOrigin, 400, 20);
+	seedSlider->setValue(noiseGen.getSeedValue());
+	seedSlider->addListener([seedSlider, this]()
+		{
+			unsigned int seed = seedSlider->getCurrentValue();
+			noiseGen.setSeedValue(seed);
+		}
+	);
+	uiElements.push_back(std::static_pointer_cast<BaseUserInterfaceElement>(seedSlider));
+
+	/*	Amplitude Slider	*/
+	yOrigin -= 70;
+	std::shared_ptr<UISlider> ampSlider = std::make_shared<UISlider>("Amplitude", 1.0f, 6.0f, true, origin, yOrigin, 400, 20);
+	ampSlider->setValue(noiseGen.getAmpCount());
+	ampSlider->addListener([ampSlider, this]()
+		{
+			float ampCount = ampSlider->getCurrentValue();
+			noiseGen.setAmpCount(ampCount);
+		}
+	);
+	uiElements.push_back(std::static_pointer_cast<BaseUserInterfaceElement>(ampSlider));
+
+	/*	Frequency Slider	*/
+	yOrigin -= 70;
+	std::shared_ptr<UISlider> freqSlider = std::make_shared<UISlider>("Frequency", 0.001f, 3.00f, true, origin, yOrigin, 400, 20);
+	freqSlider->setValue(noiseGen.getFreqCount());
+	freqSlider->addListener([freqSlider, this]()
+		{
+			float freqCount = freqSlider->getCurrentValue();
+			noiseGen.setFreqCount(freqCount);
+		}
+	);
+	uiElements.push_back(std::static_pointer_cast<BaseUserInterfaceElement>(freqSlider));
+
+	/*	Ocative Slider	*/
+	yOrigin -= 70;
+	std::shared_ptr<UISlider> octSlider = std::make_shared<UISlider>("Ocative Count", 1.0f, 16.0f, false, origin, yOrigin, 400, 20);
+	octSlider->setValue(noiseGen.getOcativeCount());
+	octSlider->addListener([octSlider, this]()
+		{
+			int octCount = octSlider->getCurrentValue();
+			noiseGen.setOcativeCount(octCount);
+		}
+	);
+	uiElements.push_back(std::static_pointer_cast<BaseUserInterfaceElement>(octSlider));
+
+	/*	Generate Perlin Button	*/
+	yOrigin -= 120;
+	origin += 125.f;
+	std::shared_ptr<UIButton> button = std::make_shared<UIButton>("Show Sphere", origin, yOrigin, 200, 50);
+	button->addListener([]() {std::cout << "EVENT WHOOO!!!" << std::endl;});
+	uiElements.push_back(std::static_pointer_cast<BaseUserInterfaceElement>(button));
+
+	/*	Show Different Model Button	*/
+	yOrigin -= 90;
+	button = std::make_shared<UIButton>("Generate Perlin", origin, yOrigin, 200, 50);
+	button->addListener([this]() 
+		{
+			noiseGen.CreatePerlinNoiseTexture();
+		}
+	);
+	uiElements.push_back(std::static_pointer_cast<BaseUserInterfaceElement>(button));
 }
 
 void MainGame::gameLoop()
@@ -174,7 +231,7 @@ void MainGame::processInput()
 					case SDLK_BACKSPACE:
 						system("cls");
 						std::cout << "BACKSPACE KEY PRESSED" << std::endl;
-						noiseGen.SetSeedValue(perlinNoiseSeedValue);
+						noiseGen.setSeedValue(perlinNoiseSeedValue);
 						noiseGen.CreatePerlinNoiseTexture();
 						break;
 
@@ -184,23 +241,8 @@ void MainGame::processInput()
 						break;
 				}
 			break;
-
-			// Mouse input
-			// Uncomment if we are doing camera movement
-			//case SDL_MOUSEMOTION:
-			//	float xRel = evnt.motion.xrel, yRel = evnt.motion.yrel;
-			//	myCamera.Pitch(yRel / 1000);
-			//	myCamera.Yaw(-xRel / 1000);
-
-			//	break;
-
 		}
 	}
-	//system("cls");
-	//std::cout << "Mouse Position: (" << mouseState.mouseXPos << ", " << mouseState.mouseYPos << ")\n";
-	//std::cout << "Left Button Down: " << (mouseState.LeftButtonDown ? "Yes" : "No") << "\n";
-	//std::cout << "Middle Button Down: " << (mouseState.MiddleButtonDown ? "Yes" : "No") << "\n";
-	//std::cout << "Right Button Down: " << (mouseState.RightButtonDown ? "Yes" : "No") << "\n";
 }
 
 void MainGame::update()
@@ -339,12 +381,27 @@ void MainGame::renderActiveShader()
 	}
 }
 
+void MainGame::drawBackgroundUI()
+{
+	// Draw background
+	// If the origin is the bottom left, the origin of the quad would be 2/3 into the total screen size
+	int origin = (_gameDisplay.getWidth() / 3) * 1.8f;
+	glColor4f(0.2f, 0.2f, 0.2f, 1.f);
+
+	// Base drawing of the button's quad
+	glBegin(GL_QUADS);
+		glVertex2d(_gameDisplay.getWidth(), 0);
+		glVertex2d(origin, 0);
+		glVertex2d(origin, _gameDisplay.getHeight());
+		glVertex2d(_gameDisplay.getWidth(), _gameDisplay.getHeight());
+	glEnd();
+}
+
 void MainGame::drawUIElements()
 {
 	// Basically, only allow processing of a specific UI element so that we check if the cursor is within the bounds of an object and then process it's logic
-	for (auto it = BaseUserInterfaceElement::elements.begin(); it != BaseUserInterfaceElement::elements.end(); it++) 
+	for (auto& element : uiElements)
 	{
-		BaseUserInterfaceElement* element = (*it);
 
 		element->drawUI();
 		// If we have our mouse hovered over something, process it and only it
@@ -396,7 +453,7 @@ void MainGame::drawGame()
 	glPushMatrix();
 	glLoadIdentity();
 
-
+	drawBackgroundUI();
 	drawUIElements();
 
 	// Restore matrices
