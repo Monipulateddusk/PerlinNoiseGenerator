@@ -1,11 +1,11 @@
 #version 400 core
 
 in vec2 texCoord0;  
-uniform sampler2D diffuse;
+uniform sampler2D colourDiffuse;
 
 out vec4 FragColor; // 'out' is used for fragment output
 
 void main()
 {
-    FragColor = texture(diffuse, texCoord0);  // Use 'texture' instead of 'texture2D'
+    FragColor = texture(colourDiffuse, texCoord0);  // Use 'texture' instead of 'texture2D'
 }
