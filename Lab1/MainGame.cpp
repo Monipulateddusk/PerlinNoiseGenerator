@@ -38,7 +38,7 @@ void MainGame::initSystems()
 {
 	_gameDisplay.initDisplay(); 
 
-	monkey = new GameObject("..\\res\\monkey3.obj", "..\\res\\PerlinNoise\\GeneratedPerlinNoise.png");
+	monkey = new GameObject("..\\res\\subdividedPlane.obj", "..\\res\\PerlinNoise\\GeneratedPerlinNoise.png");
 	cube = new GameObject("..\\res\\cube.obj", "..\\res\\PerlinNoise\\GeneratedPerlinNoise.png", true);
 
 	generatedPerlinNoiseTexture.init("..\\res\\PerlinNoise\\GeneratedPerlinNoise.png", true);
@@ -318,7 +318,7 @@ void MainGame::linkNoiseShader()
 
 
 	monkey->transform.SetPos(glm::vec3(0.0, 0.0, -25));
-	monkey->transform.SetRot(glm::vec3(0.0, 10, 0.0));
+	monkey->transform.SetRot(glm::vec3(0.0+ counter, 10, 0.0 + counter));
 	monkey->transform.SetScale(glm::vec3(1.2, 1.2, 1.2));
 
 	//myCamera.MoveRight(0.0001);
@@ -449,7 +449,8 @@ void MainGame::drawGame()
 	// ----- 3D Rendering -----
 	// Enable depth, texture culling and texture mapping for 3D rendering
 	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
+
 	
 	renderSkybox();
 	linkNoiseShader();
