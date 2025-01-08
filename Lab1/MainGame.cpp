@@ -307,7 +307,9 @@ void MainGame::linkNoiseShader()
 
 	//set textures
 	glActiveTexture(GL_TEXTURE0); //set acitve texture unit
-	glBindTexture(GL_TEXTURE_2D, noiseTexture.ID());
+	if(isADSEnabled){ glBindTexture(GL_TEXTURE_2D, noiseTexture.ID()); }
+	else{ glBindTexture(GL_TEXTURE_2D, generatedPerlinNoiseTexture.ID()); }
+
 	glUniform1i(t1L, 0);
 
 	glActiveTexture(GL_TEXTURE1); //set acitve texture unit
@@ -318,7 +320,7 @@ void MainGame::linkNoiseShader()
 
 
 	monkey->transform.SetPos(glm::vec3(0.0, 0.0, -25));
-	monkey->transform.SetRot(glm::vec3(0.0+ counter, 10, 0.0 + counter));
+	monkey->transform.SetRot(glm::vec3(90, 0, 90));
 	monkey->transform.SetScale(glm::vec3(1.2, 1.2, 1.2));
 
 	//myCamera.MoveRight(0.0001);
@@ -454,17 +456,20 @@ void MainGame::drawGame()
 	
 	renderSkybox();
 	linkNoiseShader();
-	renderActiveShader();
+	//renderActiveShader();
 
+
+	// For whatever reason we need to render some kind of shader for the text to render.
+	// If we render none, the text wont render despite the fact we are disabling shaders in the UI
+	enviroMappingShader.Bind();
+	linkEnviroMapping();
 	// ----- 2D Rendering -----
 	
 	// Clear depth buffer
 	glClear(GL_DEPTH_BUFFER_BIT);
 
-	// Clear any active shaders
-	glUseProgram(0); // Disable shaders
-
 	// Disable 3D-specific settings
+	glUseProgram(0); // Disable shaders
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
 

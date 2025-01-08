@@ -90,7 +90,7 @@ void PerlinNoiseGenerator::CreatePerlinNoiseTexture()
 	}
 	// Convert float values in textureData to unsigned char for image format (grayscale)
 	for (int i = 0; i < width * height; ++i) {
-		data[i] = static_cast<unsigned char>(std::min(255.0f, std::max(0.0f, 1 - textureData[i] * 255.0f)));
+		data[i] = static_cast<unsigned char>(std::min(255.0f, std::max(0.0f, textureData[i] * 255.0f)));
 	}
 
 	// Testing path
