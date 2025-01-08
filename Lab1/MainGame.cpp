@@ -25,6 +25,7 @@ MainGame::MainGame()
 MainGame::~MainGame()
 {
 	delete monkey;
+	delete cube;
 }
 
 void MainGame::run()
@@ -37,7 +38,11 @@ void MainGame::initSystems()
 {
 	_gameDisplay.initDisplay(); 
 
-	monkey = new GameObject("..\\res\\monkey3.obj", "..\\res\\bricks.jpg");
+	monkey = new GameObject("..\\res\\subdividedPlane.obj", "..\\res\\PerlinNoise\\GeneratedPerlinNoise.png");
+	cube = new GameObject("..\\res\\cube.obj", "..\\res\\PerlinNoise\\GeneratedPerlinNoise.png", true);
+
+	generatedPerlinNoiseTexture.init("..\\res\\PerlinNoise\\GeneratedPerlinNoise.png", true);
+
 
 	lavaTexture.init("..\\res\\lava3.jpg");
 	noiseTexture.init("..\\res\\noise.png");
@@ -142,7 +147,7 @@ void MainGame::initUI()
 
 	/*	Frequency Slider	*/
 	yOrigin -= 70;
-	std::shared_ptr<UISlider> freqSlider = std::make_shared<UISlider>("Frequency", 0.001f, 3.00f, true, origin, yOrigin, 400, 20);
+	std::shared_ptr<UISlider> freqSlider = std::make_shared<UISlider>("Frequency", 1.0f, 3.00f, true, origin, yOrigin, 400, 20);
 	freqSlider->setValue(noiseGen.getFreqCount());
 	freqSlider->addListener([freqSlider, this]()
 		{
@@ -166,7 +171,7 @@ void MainGame::initUI()
 
 	/*	Generate Perlin Button	*/
 	yOrigin -= 120;
-	origin += 125.f;
+	origin += 104.f;
 	std::shared_ptr<UIButton> button = std::make_shared<UIButton>("Show Sphere", origin, yOrigin, 200, 50);
 	button->addListener([]() {std::cout << "EVENT WHOOO!!!" << std::endl;});
 	uiElements.push_back(std::static_pointer_cast<BaseUserInterfaceElement>(button));
@@ -177,6 +182,7 @@ void MainGame::initUI()
 	button->addListener([this]() 
 		{
 			noiseGen.CreatePerlinNoiseTexture();
+			setPerlinNoiseTexture();
 		}
 	);
 	uiElements.push_back(std::static_pointer_cast<BaseUserInterfaceElement>(button));
@@ -216,23 +222,6 @@ void MainGame::processInput()
 					case SDLK_s:
 						// Switch between the different shaders
 						isADSEnabled = !isADSEnabled;
-
-						break;
-
-
-					case SDLK_RIGHT: // Increment the seed value on the perlin noise generator
-						perlinNoiseSeedValue++;
-						break;
-
-					case SDLK_LEFT: // Decrement the seed value on the perlin noise generator
-						perlinNoiseSeedValue == 0 ? perlinNoiseSeedValue = 0 : perlinNoiseSeedValue--;
-						break;
-
-					case SDLK_BACKSPACE:
-						system("cls");
-						std::cout << "BACKSPACE KEY PRESSED" << std::endl;
-						noiseGen.setSeedValue(perlinNoiseSeedValue);
-						noiseGen.CreatePerlinNoiseTexture();
 						break;
 
 					case SDLK_ESCAPE:
@@ -329,10 +318,10 @@ void MainGame::linkNoiseShader()
 
 
 	monkey->transform.SetPos(glm::vec3(0.0, 0.0, -25));
-	monkey->transform.SetRot(glm::vec3(0.0, 10, 0.0));
+	monkey->transform.SetRot(glm::vec3(0.0+ counter, 10, 0.0 + counter));
 	monkey->transform.SetScale(glm::vec3(1.2, 1.2, 1.2));
 
-	myCamera.MoveRight(0.0001);
+	//myCamera.MoveRight(0.0001);
 
 	noiseShader.Update(monkey->transform, myCamera);
 
@@ -381,12 +370,18 @@ void MainGame::renderActiveShader()
 	}
 }
 
+void MainGame::setPerlinNoiseTexture()
+{
+	generatedPerlinNoiseTexture.ClearTexture();
+	generatedPerlinNoiseTexture.init("..\\res\\PerlinNoise\\GeneratedPerlinNoise.png", true);
+}
+
 void MainGame::drawBackgroundUI()
 {
 	// Draw background
 	// If the origin is the bottom left, the origin of the quad would be 2/3 into the total screen size
 	int origin = (_gameDisplay.getWidth() / 3) * 1.8f;
-	glColor4f(0.2f, 0.2f, 0.2f, 1.f);
+	glColor4f(0.3f, 0.3f, 0.3f, 1.f);
 
 	// Base drawing of the button's quad
 	glBegin(GL_QUADS);
@@ -402,7 +397,6 @@ void MainGame::drawUIElements()
 	// Basically, only allow processing of a specific UI element so that we check if the cursor is within the bounds of an object and then process it's logic
 	for (auto& element : uiElements)
 	{
-
 		element->drawUI();
 		// If we have our mouse hovered over something, process it and only it
 		if (element->updateUI(mouseState, _gameDisplay.getHeight())) {
@@ -418,6 +412,36 @@ void MainGame::drawUIElements()
 	}
 }
 
+void MainGame::drawGeneratedPerlinNoise()
+{
+	int originX = ((_gameDisplay.getWidth() / 3) * 1.8f) + 76;
+	int originY = 10;
+
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, generatedPerlinNoiseTexture.ID());
+
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+	glBegin(GL_QUADS);
+		// Tex coords - Top Left | Vertex origin of 0,0
+		glTexCoord2f(0.0f, 1.0f);
+		glVertex2d(originX, originY);
+
+		// Tex coords - Top right | Vertex origin of 1,0
+		glTexCoord2f(1.0f, 1.0f);
+		glVertex2d(originX + 256, originY);
+
+		// Tex coords - Bottom Right | Vertex origin of 1,1
+		glTexCoord2f(1.0f, 0.0f);
+		glVertex2d(originX + 256, originY + 256);
+
+		// Tex coords - Bottom Left | Vertex origin of 0,1
+		glTexCoord2f(0.0f, 0.0f);
+		glVertex2d(originX, originY + 256);
+
+	glEnd();
+	glDisable(GL_TEXTURE_2D);
+}
+
 void MainGame::drawGame()
 {
 	_gameDisplay.clearDisplay(1.0f, 1.0f, 1.0f, 1.0f);
@@ -425,12 +449,12 @@ void MainGame::drawGame()
 	// ----- 3D Rendering -----
 	// Enable depth, texture culling and texture mapping for 3D rendering
 	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
+
 	
 	renderSkybox();
 	linkNoiseShader();
 	renderActiveShader();
-	renderMonkey();
 
 	// ----- 2D Rendering -----
 	
@@ -455,6 +479,7 @@ void MainGame::drawGame()
 
 	drawBackgroundUI();
 	drawUIElements();
+	drawGeneratedPerlinNoise();
 
 	// Restore matrices
 	glPopMatrix();               // Restore modelview matrix

@@ -28,6 +28,8 @@ void Mesh::initModel(const IndexedModel& model)
 	glBindVertexArray(vertexArrayObject); //bind the VAO (any operation that works on a VAO will work on our bound VAO - binding)
 
 	glGenBuffers(NUM_BUFFERS, vertexArrayBuffers); //generate our buffers based of our array of data/buffers - GLuint vertexArrayBuffers[NUM_BUFFERS];
+
+	if (vertexArrayBuffers == NULL) { assert("UNABLE TO GENERATE VERTEX_ARRAY_BUFFER"); }
 	
 	glBindBuffer(GL_ARRAY_BUFFER, vertexArrayBuffers[0]); //tell opengl what type of data the buffer is (GL_ARRAY_BUFFER), and pass the data
 	glBufferData(GL_ARRAY_BUFFER, model.positions.size() * sizeof(model.positions[0]), &model.positions[0], GL_STATIC_DRAW); //move the data to the GPU - type of data, size of data, starting address (pointer) of data, where do we store the data on the GPU (determined by type)

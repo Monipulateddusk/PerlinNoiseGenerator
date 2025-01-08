@@ -38,9 +38,12 @@ private:
 	void renderMonkey();
 	void renderSkybox();
 	void renderActiveShader();
+
+	void setPerlinNoiseTexture();
 	
 	void drawBackgroundUI();
 	void drawUIElements();
+	void drawGeneratedPerlinNoise();
 	void drawGame();
 
 	Display _gameDisplay;
@@ -65,25 +68,20 @@ private:
 	MouseState mouseState;
 
 	std::vector<std::shared_ptr<BaseUserInterfaceElement>> uiElements;
+	Texture generatedPerlinNoiseTexture;
 #pragma endregion
 
 
 	Texture noiseTexture, lavaTexture;
 
 	Skybox skybox;
-	GameObject* monkey;
+	GameObject* monkey, *cube;
 
 	PerlinNoiseGenerator noiseGen;
 
-
-	
-	//Mesh mesh1;
-	//Mesh mesh2;
 	Camera myCamera;
-	//Texture texture; 
 
 	FrameBufferObject* FBO;
-	//Transform transform;
 	GLuint quadVAO;
 	GLuint quadVBO;
 
