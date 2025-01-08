@@ -147,7 +147,7 @@ void MainGame::initUI()
 
 	/*	Frequency Slider	*/
 	yOrigin -= 70;
-	std::shared_ptr<UISlider> freqSlider = std::make_shared<UISlider>("Frequency", 0.001f, 3.00f, true, origin, yOrigin, 400, 20);
+	std::shared_ptr<UISlider> freqSlider = std::make_shared<UISlider>("Frequency", 1.0f, 3.00f, true, origin, yOrigin, 400, 20);
 	freqSlider->setValue(noiseGen.getFreqCount());
 	freqSlider->addListener([freqSlider, this]()
 		{
@@ -321,7 +321,7 @@ void MainGame::linkNoiseShader()
 	monkey->transform.SetRot(glm::vec3(0.0, 10, 0.0));
 	monkey->transform.SetScale(glm::vec3(1.2, 1.2, 1.2));
 
-	myCamera.MoveRight(0.0001);
+	//myCamera.MoveRight(0.0001);
 
 	noiseShader.Update(monkey->transform, myCamera);
 
@@ -372,10 +372,8 @@ void MainGame::renderActiveShader()
 
 void MainGame::setPerlinNoiseTexture()
 {
-	Texture temp;
-	temp.init("..\\res\\PerlinNoise\\GeneratedPerlinNoise.png", true);
-
-	generatedPerlinNoiseTexture = temp;
+	generatedPerlinNoiseTexture.ClearTexture();
+	generatedPerlinNoiseTexture.init("..\\res\\PerlinNoise\\GeneratedPerlinNoise.png", true);
 }
 
 void MainGame::drawBackgroundUI()
@@ -456,7 +454,6 @@ void MainGame::drawGame()
 	renderSkybox();
 	linkNoiseShader();
 	renderActiveShader();
-	renderMonkey();
 
 	// ----- 2D Rendering -----
 	
