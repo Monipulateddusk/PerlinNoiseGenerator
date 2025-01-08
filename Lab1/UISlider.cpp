@@ -1,6 +1,6 @@
 #include "UISlider.h"
 
-UISlider::UISlider(std::string label, float min, float max, int posX, int posY, int width, int height)
+UISlider::UISlider(std::string label, float min, float max, bool isFloat ,int posX, int posY, int width, int height)
 	: BaseUserInterfaceElement(posX, posY, width, height)
 {
 	defaultValue = max /2 ;
@@ -10,6 +10,7 @@ UISlider::UISlider(std::string label, float min, float max, int posX, int posY, 
 	sliderMax = max;
 	sliderLabel = label;
 	isDragging = false;
+	isFloatValue = isFloat;
 
 	// Generate the texture so we aren't doing it every frame
 	glGenTextures(1, &texture);
@@ -50,7 +51,7 @@ bool UISlider::updateUI(MouseState& state, int screenHeight)
 	// If we were dragging, set the current value to the position
 	if (isDragging) {
 		float value = sliderMin + ((float)(x - posX) / width) * (sliderMax - sliderMin);
-		*currentValue = value;
+		*currentValue = isFloatValue ? (value) : (int)value;
 
 		// Clamp the bounds of the current value to the minimum and maximum values
 		if (*currentValue > sliderMax) {
@@ -109,12 +110,14 @@ void UISlider::drawUI()
 
 	float currentX = ((*currentValue - sliderMin) / (sliderMax - sliderMin) *(width - 5)) + posX;
 
+	float xVal = isFloatValue ? currentX : (int)currentX;
+
 	glColor4f(0.0f, 1.0f, 0.0f, 0.8f);
 	glBegin(GL_QUADS);
-		glVertex2d(currentX + 5, posY);
-		glVertex2d(currentX, posY);
-		glVertex2d(currentX, posY + height);
-		glVertex2d(currentX + 5, posY + height);
+		glVertex2d(xVal + 5, posY);
+		glVertex2d(xVal, posY);
+		glVertex2d(xVal, posY + height);
+		glVertex2d(xVal + 5, posY + height);
 	glEnd();
 
 	/*		Text rendering - different to the button.We need two renders.		*/
@@ -165,8 +168,14 @@ void UISlider::drawUI()
 	// Get the previous data for text box allignment
 	BitmapInfo preBitmapInfo = info;
 
-	// Convert the float to string for use in text rendering
-	std::string stringVal = std::to_string((*currentValue));
+	// Are we displaying a float or an int?
+	std::string stringVal = "";
+	if (isFloatValue) {
+		stringVal = std::to_string(*currentValue);
+	}
+	else {
+		stringVal = std::to_string((int)*currentValue);
+	}
 	
 	info = writeText(stringVal.c_str(), width, height);
 
