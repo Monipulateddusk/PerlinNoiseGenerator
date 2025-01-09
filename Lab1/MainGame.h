@@ -29,10 +29,14 @@ private:
 	void update();
 	void gameLoop();
 
+	void activateOrtho();
+	void disableOrtho();
+
 	void linkADS();
 	void linkGeoShader();
 	void linkEnviroMapping();
 	void linkNoiseShader();
+	void linkHeightMapShader();
 
 	void renderFBO();
 	void renderMonkey();
@@ -60,6 +64,7 @@ private:
 	Shader edgeDetectionShader;
 	Shader noiseShader;
 	Shader glowShader;
+	Shader heightMapShader;
 
 	#pragma endregion
 
@@ -75,7 +80,7 @@ private:
 	Texture noiseTexture, lavaTexture;
 
 	Skybox skybox;
-	GameObject* monkey, *cube;
+	GameObject* monkey, *cube, *plane;
 
 	PerlinNoiseGenerator noiseGen;
 

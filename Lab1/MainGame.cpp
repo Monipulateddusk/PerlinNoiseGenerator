@@ -38,8 +38,11 @@ void MainGame::initSystems()
 {
 	_gameDisplay.initDisplay(); 
 
-	monkey = new GameObject("..\\res\\subdividedPlane.obj", "..\\res\\PerlinNoise\\GeneratedPerlinNoise.png");
+	monkey = new GameObject("..\\res\\monkey3.obj", "..\\res\\PerlinNoise\\GeneratedPerlinNoise.png");
 	cube = new GameObject("..\\res\\cube.obj", "..\\res\\PerlinNoise\\GeneratedPerlinNoise.png", true);
+	plane = new GameObject("..\\res\\subdividedPlane2.obj", "..\\res\\PerlinNoise\\GeneratedPerlinNoise.png");
+	plane->transform.SetPos(glm::vec3(0.0, -0.5f, -25));
+	plane->transform.SetScale(glm::vec3(1.2, 1.2, 1.2));
 
 	generatedPerlinNoiseTexture.init("..\\res\\PerlinNoise\\GeneratedPerlinNoise.png", true);
 
@@ -57,6 +60,7 @@ void MainGame::initSystems()
 	edgeDetectionShader.init("..\\res\\edgeDetectionShader.vert", "..\\res\\edgeDetectionShader.frag");
 	noiseShader.init("..\\res\\noise.vert", "..\\res\\noise.frag");
 	glowShader.init("..\\res\\glow.vert", "..\\res\\glow.frag");
+	heightMapShader.init("..\\res\\heightMap.vert", "..\\res\\heightMap.frag");
 	
 
 	myCamera.initCamera(glm::vec3(-1, 0, -30), 70.0f, (float)_gameDisplay.getWidth()/_gameDisplay.getHeight(), 0.01f, 1000.0f);
@@ -198,6 +202,28 @@ void MainGame::gameLoop()
 	}
 }
 
+void MainGame::activateOrtho()
+{
+	// Switching the matrix mode to projection, saving it and resetting it to identity to remove translations.
+	// Done for both projection and model view matrixs
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	glOrtho(0.0, _gameDisplay.getWidth(), 0.0, _gameDisplay.getHeight(), -1.0, 1.0);
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+}
+
+void MainGame::disableOrtho()
+{
+	// Restoring the projection and model view matrixs for use next frame in 3d rendering 
+	glPopMatrix();
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+}
+
 
 
 void MainGame::processInput()
@@ -332,6 +358,28 @@ void MainGame::linkNoiseShader()
 	monkey->mesh.draw();
 }
 
+void MainGame::linkHeightMapShader()
+{
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_CULL_FACE); // Allowing faces that don't face the camera to be rendered
+	heightMapShader.Bind();
+
+	GLuint hML = glGetUniformLocation(heightMapShader.ID(), "heightMap");
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, generatedPerlinNoiseTexture.ID());
+	glUniform1i(hML, 1);
+
+	heightMapShader.setMat4("transform", plane->transform.GetModel());
+
+	heightMapShader.Update(plane->transform, myCamera);
+
+	plane->transform.SetRot(glm::vec3(0, 0+counter, 25.1f));
+
+	plane->mesh.draw();
+}
+
 
 
 void MainGame::renderFBO()
@@ -451,13 +499,13 @@ void MainGame::drawGame()
 	// ----- 3D Rendering -----
 	// Enable depth, texture culling and texture mapping for 3D rendering
 	glEnable(GL_DEPTH_TEST);
-	//glEnable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
 
 	
 	renderSkybox();
-	linkNoiseShader();
+	//linkNoiseShader();
 	//renderActiveShader();
-
+	linkHeightMapShader();
 
 	// For whatever reason we need to render some kind of shader for the text to render.
 	// If we render none, the text wont render despite the fact we are disabling shaders in the UI
@@ -465,32 +513,21 @@ void MainGame::drawGame()
 	linkEnviroMapping();
 	// ----- 2D Rendering -----
 	
-	// Clear depth buffer
+	// Clear depth buffer & disabling 3D-specific effects or settings including disabling shaders
 	glClear(GL_DEPTH_BUFFER_BIT);
-
-	// Disable 3D-specific settings
-	glUseProgram(0); // Disable shaders
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
+	glUseProgram(0);
 
 	// Set up an orthographic projection matrix
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
-	glOrtho(0.0, _gameDisplay.getWidth(), 0.0, _gameDisplay.getHeight(), -1.0, 1.0);
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadIdentity();
+	activateOrtho();
 
 	drawBackgroundUI();
 	drawUIElements();
 	drawGeneratedPerlinNoise();
 
-	// Restore matrices
-	glPopMatrix();               // Restore modelview matrix
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();               // Restore projection matrix
-	glMatrixMode(GL_MODELVIEW);
+	// Disable said orthographic matrix for 3d rendering next frame
+	disableOrtho();
 
 	// Swap the buffer
 	_gameDisplay.swapBuffer();

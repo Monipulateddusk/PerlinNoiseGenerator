@@ -34,6 +34,10 @@ struct BitmapInfo {
 		b_h = h;
 		l_h = lh;
 	}
+	~BitmapInfo() {
+		bitmap = nullptr;
+		delete bitmap;
+	}
 };
 
 class BaseUserInterfaceElement

@@ -113,6 +113,8 @@ void UIButton::drawUI()
 	glDisable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f); // Reset the colour to white
+
+	delete info.bitmap;
 }
 
 std::string UIButton::getType()

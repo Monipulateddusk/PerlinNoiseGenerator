@@ -166,6 +166,7 @@ void UISlider::drawUI()
 	
 	/*			Slider current value display			*/ 
 	// Get the previous data for text box allignment
+	delete info.bitmap; // Free the raw pointer before it goes out of scope and causes a memory leak
 	BitmapInfo preBitmapInfo = info;
 
 	// Are we displaying a float or an int?
@@ -220,7 +221,7 @@ void UISlider::drawUI()
 	glDisable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-
+	delete info.bitmap;
 
 }
 
