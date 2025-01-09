@@ -14,6 +14,7 @@ unsigned int indices[] = { 0, 1, 2 };
 
 MainGame::MainGame()
 {
+	curModelDisplayed = MODELDISPLAYED::NONE;
 	counter = 0; isADSEnabled = false;
 	_gameState = GameState::PLAY;
 	Display* _gameDisplay = new Display(); //new display
@@ -125,8 +126,8 @@ void MainGame::initUI()
 {
 	// Had odd occourance where the pointer given by the static inside the baseUserInterfaceElement was causing corrupted pointers when some events tried to fire
 	// Converting to smart pointers seemed to fix it
-	int origin = (_gameDisplay.getWidth() / 3) * 1.81;
-	int yOrigin = (_gameDisplay.getHeight());
+	int origin = (int)(_gameDisplay.getWidth() / 3) * 1.81;
+	int yOrigin = (int)(_gameDisplay.getHeight());
 
 
 	/*	Seed Slider	*/
@@ -135,7 +136,7 @@ void MainGame::initUI()
 	seedSlider->setValue(noiseGen.getSeedValue());
 	seedSlider->addListener([seedSlider, this]()
 		{
-			unsigned int seed = seedSlider->getCurrentValue();
+			unsigned int seed = (unsigned int)seedSlider->getCurrentValue();
 			noiseGen.setSeedValue(seed);
 		}
 	);
@@ -171,7 +172,7 @@ void MainGame::initUI()
 	octSlider->setValue(noiseGen.getOcativeCount());
 	octSlider->addListener([octSlider, this]()
 		{
-			int octCount = octSlider->getCurrentValue();
+			int octCount = (int)octSlider->getCurrentValue();
 			noiseGen.setOcativeCount(octCount);
 		}
 	);
@@ -456,7 +457,7 @@ void MainGame::drawBackgroundUI()
 {
 	// Draw background
 	// If the origin is the bottom left, the origin of the quad would be 2/3 into the total screen size
-	int origin = (_gameDisplay.getWidth() / 3) * 1.8f;
+	int origin = (float)(_gameDisplay.getWidth() / 3) * 1.8f;
 	glColor4f(0.3f, 0.3f, 0.3f, 1.f);
 
 	// Base drawing of the button's quad
@@ -490,7 +491,7 @@ void MainGame::drawUIElements()
 
 void MainGame::drawGeneratedPerlinNoise()
 {
-	int originX = ((_gameDisplay.getWidth() / 3) * 1.8f) + 76;
+	int originX = (int)((_gameDisplay.getWidth() / 3) * 1.8f) + 76;
 	int originY = 10;
 
 	glEnable(GL_TEXTURE_2D);

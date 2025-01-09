@@ -94,6 +94,8 @@ private:
 
 	float counter;
 	bool isADSEnabled;
+	enum MODELDISPLAYED {NONE,PLANE_HEIGHT_MAP, TORUS_PERLIN_TEXTURE};
+	MODELDISPLAYED curModelDisplayed;
 
 	unsigned int perlinNoiseSeedValue;
 };

@@ -122,7 +122,7 @@ BitmapInfo BaseUserInterfaceElement::writeText(const char* text, int b_w, int b_
 			{
 				int gsBitmapIndex = cy * charWidth + cx; // Grayscale bitmap index
 				int rGBAIndex = (x + cx + (y + cy) * b_w) * 4;
-				unsigned char alphaValue = charBitmap[gsBitmapIndex];	// This warning is confusing.We are assuming that the malloc worked to correctly intitalise the data
+				unsigned char alphaValue = charBitmap[gsBitmapIndex];	// This warning is confusing. We are assuming that the malloc worked to correctly intitalise the data
 				bitmap[rGBAIndex] = 0;    // Red
 				bitmap[rGBAIndex + 1] = 0; // Green
 				bitmap[rGBAIndex + 2] = 0; // Blue
