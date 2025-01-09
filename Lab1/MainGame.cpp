@@ -302,6 +302,11 @@ void MainGame::linkGeoShader()
 
 	geomShader.setFloat("time", counter);
 
+	GLuint t1L = glGetUniformLocation(geomShader.ID(), "diffuse"); //texture 1 location
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, sphere->texture.ID());
+	glUniform1i(t1L, 1);
 }
 
 void MainGame::linkEnviroMapping()
@@ -335,6 +340,7 @@ void MainGame::linkNoiseShader()
 	noiseShader.setVec3("fogColor", 0.0f, 0.0f, 0.5f);
 	noiseShader.setFloat("maxDist", 10.0f);
 	noiseShader.setFloat("minDist", 0.0f);
+
 	GLuint t1L = glGetUniformLocation(noiseShader.ID(), "texture1"); //texture 1 location
 	GLuint t2L = glGetUniformLocation(noiseShader.ID(), "texture2");
 
@@ -349,17 +355,11 @@ void MainGame::linkNoiseShader()
 	glBindTexture(GL_TEXTURE_2D, lavaTexture.ID());
 	glUniform1i(t2L, 1);
 
-	//type of and texture to bind to unit
-
-
 	monkey->transform.SetPos(glm::vec3(0.0, 0.0, -25));
 	monkey->transform.SetRot(glm::vec3(90, 0, 90));
 	monkey->transform.SetScale(glm::vec3(1.2, 1.2, 1.2));
 
 	noiseShader.Update(monkey->transform, myCamera);
-
-
-
 	monkey->mesh.draw();
 }
 
@@ -389,11 +389,23 @@ void MainGame::linkHeightMapShader()
 
 void MainGame::renderEnvironmentMonkey()
 {
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	linkEnviroMapping(); 
 
 	monkey->transform.SetPos(glm::vec3(0, 2.0f, -14.0f));
 	enviroMappingShader.Update(monkey->transform, myCamera);
 	monkey->mesh.draw();
+}
+
+void MainGame::renderExplosionSphere()
+{
+	geomShader.Bind();
+	linkGeoShader();
+
+	sphere->transform.SetPos(glm::vec3(5.0f, 2.0f, -14.0f));
+	geomShader.Update(sphere->transform, myCamera);
+	sphere->mesh.draw();
 }
 
 void MainGame::renderFBO()
@@ -514,12 +526,14 @@ void MainGame::drawGame()
 	// Enable depth, texture culling and texture mapping for 3D rendering
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
-	
-	renderEnvironmentMonkey();
 
 	renderSkybox();
-	//linkNoiseShader();
-	//renderActiveShader();
+
+	// Other 3d objects
+	renderEnvironmentMonkey();
+	renderExplosionSphere();
+
+	glClear(GL_DEPTH_BUFFER_BIT); // Make height map or whatever the user selected is the most front faced object, Other objects would be rendered behind it
 	linkHeightMapShader();
 
 	// For whatever reason we need to render some kind of shader for the text to render.

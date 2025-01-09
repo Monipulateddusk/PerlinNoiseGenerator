@@ -39,6 +39,7 @@ private:
 	void linkHeightMapShader();
 
 	void renderEnvironmentMonkey();
+	void renderExplosionSphere();
 	void renderFBO();
 	void renderMonkey();
 	void renderSkybox();
