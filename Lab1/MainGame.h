@@ -38,6 +38,7 @@ private:
 	void linkNoiseShader();
 	void linkHeightMapShader();
 
+	void renderEnvironmentMonkey();
 	void renderFBO();
 	void renderMonkey();
 	void renderSkybox();

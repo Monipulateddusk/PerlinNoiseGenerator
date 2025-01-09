@@ -38,7 +38,9 @@ void MainGame::initSystems()
 {
 	_gameDisplay.initDisplay(); 
 
-	monkey = new GameObject("..\\res\\monkey3.obj", "..\\res\\PerlinNoise\\GeneratedPerlinNoise.png");
+	monkey = new GameObject("..\\res\\monkey3.obj", "..\\res\\noise.jpg");
+	monkey->transform.SetPos(glm::vec3(0, 2.5f, 0));
+
 	cube = new GameObject("..\\res\\cube.obj", "..\\res\\PerlinNoise\\GeneratedPerlinNoise.png", true);
 	plane = new GameObject("..\\res\\subdividedPlane2.obj", "..\\res\\PerlinNoise\\GeneratedPerlinNoise.png");
 	plane->transform.SetPos(glm::vec3(0.0, -0.5f, -25));
@@ -304,6 +306,9 @@ void MainGame::linkGeoShader()
 
 void MainGame::linkEnviroMapping()
 {
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	enviroMappingShader.Bind();
 	enviroMappingShader.setMat4("model", monkey->transform.GetModel());
 	enviroMappingShader.setVec3("cameraPos", myCamera.getPos());
 
@@ -381,6 +386,15 @@ void MainGame::linkHeightMapShader()
 }
 
 
+
+void MainGame::renderEnvironmentMonkey()
+{
+	linkEnviroMapping(); 
+
+	monkey->transform.SetPos(glm::vec3(0, 2.0f, -14.0f));
+	enviroMappingShader.Update(monkey->transform, myCamera);
+	monkey->mesh.draw();
+}
 
 void MainGame::renderFBO()
 {
@@ -500,8 +514,9 @@ void MainGame::drawGame()
 	// Enable depth, texture culling and texture mapping for 3D rendering
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
-
 	
+	renderEnvironmentMonkey();
+
 	renderSkybox();
 	//linkNoiseShader();
 	//renderActiveShader();
