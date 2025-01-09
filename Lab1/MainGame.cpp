@@ -14,7 +14,7 @@ unsigned int indices[] = { 0, 1, 2 };
 
 MainGame::MainGame()
 {
-	curModelDisplayed = MODELDISPLAYED::NONE;
+	curModelDisplayed = MODELDISPLAYED::PLANE_HEIGHT_MAP;
 	counter = 0; isADSEnabled = false;
 	_gameState = GameState::PLAY;
 	Display* _gameDisplay = new Display(); //new display
@@ -27,6 +27,8 @@ MainGame::~MainGame()
 {
 	delete monkey;
 	delete cube;
+	delete plane;
+	delete torus;
 }
 
 void MainGame::run()
@@ -39,7 +41,7 @@ void MainGame::initSystems()
 {
 	_gameDisplay.initDisplay(); 
 
-	monkey = new GameObject("..\\res\\monkey3.obj", "..\\res\\noise.jpg");
+	monkey = new GameObject("..\\res\\monkey3.obj", "..\\res\\Water.jpg");
 	monkey->transform.SetPos(glm::vec3(0, 2.5f, 0));
 
 	cube = new GameObject("..\\res\\cube.obj", "..\\res\\PerlinNoise\\GeneratedPerlinNoise.png", true);
@@ -49,6 +51,7 @@ void MainGame::initSystems()
 
 	sphere = new GameObject("..\\res\\sphere.obj", "..\\res\\bricks.jpg");
 
+	torus = new GameObject("..\\res\\Torus2.obj", "..\\res\\PerlinNoise\\GeneratedPerlinNoise.png", true);
 	generatedPerlinNoiseTexture.init("..\\res\\PerlinNoise\\GeneratedPerlinNoise.png", true);
 
 
@@ -178,23 +181,40 @@ void MainGame::initUI()
 	);
 	uiElements.push_back(std::static_pointer_cast<BaseUserInterfaceElement>(octSlider));
 
-	/*	Generate Perlin Button	*/
+	/*	Show Different Model Button	*/
 	yOrigin -= 120;
 	origin += 104.f;
-	std::shared_ptr<UIButton> button = std::make_shared<UIButton>("Show Sphere", origin, yOrigin, 200, 50);
-	button->addListener([]() {std::cout << "EVENT WHOOO!!!" << std::endl;});
-	uiElements.push_back(std::static_pointer_cast<BaseUserInterfaceElement>(button));
+	std::shared_ptr<UIButton> modelButton = std::make_shared<UIButton>("Show Sphere", origin, yOrigin, 200, 50);
+	modelButton->addListener([modelButton, this]()
+		{
+			// Get the next model, increment it and cap it to between 0 or 1
+			int nextModel = (int)curModelDisplayed;
+			nextModel++;
+			if (nextModel > 1) { nextModel = 0; }
 
-	/*	Show Different Model Button	*/
+			curModelDisplayed = MODELDISPLAYED(nextModel); // Get the next model
+
+			// Set the button's text to what the other model
+			std::string label = curModelDisplayed == MODELDISPLAYED::PLANE_HEIGHT_MAP ? "SHOW TORUS" : "SHOW PLANE";
+			modelButton->setLabel(label);
+
+		}
+	);
+	// Set the correct text upon start up
+	std::string label = curModelDisplayed == MODELDISPLAYED::PLANE_HEIGHT_MAP ? "SHOW TORUS" : "SHOW PLANE";
+	modelButton->setLabel(label);
+	uiElements.push_back(std::static_pointer_cast<BaseUserInterfaceElement>(modelButton));
+
+	/*	Generate Perlin Button	*/
 	yOrigin -= 90;
-	button = std::make_shared<UIButton>("Generate Perlin", origin, yOrigin, 200, 50);
-	button->addListener([this]() 
+	std::shared_ptr<UIButton> perlinButton = std::make_shared<UIButton>("Generate Perlin", origin, yOrigin, 200, 50);
+	perlinButton->addListener([this]()
 		{
 			noiseGen.CreatePerlinNoiseTexture();
 			setPerlinNoiseTexture();
 		}
 	);
-	uiElements.push_back(std::static_pointer_cast<BaseUserInterfaceElement>(button));
+	uiElements.push_back(std::static_pointer_cast<BaseUserInterfaceElement>(perlinButton));
 }
 
 void MainGame::gameLoop()
@@ -347,8 +367,7 @@ void MainGame::linkNoiseShader()
 
 	//set textures
 	glActiveTexture(GL_TEXTURE0); //set acitve texture unit
-	if(isADSEnabled){ glBindTexture(GL_TEXTURE_2D, noiseTexture.ID()); }
-	else{ glBindTexture(GL_TEXTURE_2D, generatedPerlinNoiseTexture.ID()); }
+	glBindTexture(GL_TEXTURE_2D, generatedPerlinNoiseTexture.ID());
 
 	glUniform1i(t1L, 0);
 
@@ -356,12 +375,12 @@ void MainGame::linkNoiseShader()
 	glBindTexture(GL_TEXTURE_2D, lavaTexture.ID());
 	glUniform1i(t2L, 1);
 
-	monkey->transform.SetPos(glm::vec3(0.0, 0.0, -25));
-	monkey->transform.SetRot(glm::vec3(90, 0, 90));
-	monkey->transform.SetScale(glm::vec3(1.2, 1.2, 1.2));
+	torus->transform.SetPos(glm::vec3(0.0, 0.0, -25));
+	torus->transform.SetRot(glm::vec3(90, 0, 90));
+	torus->transform.SetScale(glm::vec3(1.2, 1.2, 1.2));
 
-	noiseShader.Update(monkey->transform, myCamera);
-	monkey->mesh.draw();
+	noiseShader.Update(torus->transform, myCamera);
+	torus->mesh.draw();
 }
 
 void MainGame::linkHeightMapShader()
@@ -407,6 +426,20 @@ void MainGame::renderExplosionSphere()
 	sphere->transform.SetPos(glm::vec3(5.0f, 2.0f, -14.0f));
 	geomShader.Update(sphere->transform, myCamera);
 	sphere->mesh.draw();
+}
+
+void MainGame::renderUserSelectedModel()
+{
+	switch (curModelDisplayed) 
+	{
+		case MODELDISPLAYED::PLANE_HEIGHT_MAP:
+			linkHeightMapShader();
+			break;
+		
+		case MODELDISPLAYED::TORUS_PERLIN_TEXTURE:
+			linkNoiseShader();
+			break;
+	}
 }
 
 void MainGame::renderFBO()
@@ -535,7 +568,7 @@ void MainGame::drawGame()
 	renderExplosionSphere();
 
 	glClear(GL_DEPTH_BUFFER_BIT); // Make height map or whatever the user selected is the most front faced object, Other objects would be rendered behind it
-	linkHeightMapShader();
+	renderUserSelectedModel();
 
 	// For whatever reason we need to render some kind of shader for the text to render.
 	// If we render none, the text wont render despite the fact we are disabling shaders in the UI

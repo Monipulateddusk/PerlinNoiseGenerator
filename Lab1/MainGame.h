@@ -40,6 +40,8 @@ private:
 
 	void renderEnvironmentMonkey();
 	void renderExplosionSphere();
+	void renderUserSelectedModel();
+
 	void renderFBO();
 	void renderMonkey();
 	void renderSkybox();
@@ -82,7 +84,7 @@ private:
 	Texture noiseTexture, lavaTexture;
 
 	Skybox skybox;
-	GameObject* monkey, *cube, *plane, *sphere;
+	GameObject* monkey, *cube, *plane, *sphere, *torus;
 
 	PerlinNoiseGenerator noiseGen;
 
@@ -94,7 +96,7 @@ private:
 
 	float counter;
 	bool isADSEnabled;
-	enum MODELDISPLAYED {NONE,PLANE_HEIGHT_MAP, TORUS_PERLIN_TEXTURE};
+	enum MODELDISPLAYED {PLANE_HEIGHT_MAP, TORUS_PERLIN_TEXTURE};
 	MODELDISPLAYED curModelDisplayed;
 
 	unsigned int perlinNoiseSeedValue;
