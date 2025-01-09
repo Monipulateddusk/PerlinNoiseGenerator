@@ -44,6 +44,8 @@ void MainGame::initSystems()
 	plane->transform.SetPos(glm::vec3(0.0, -0.5f, -25));
 	plane->transform.SetScale(glm::vec3(1.2, 1.2, 1.2));
 
+	sphere = new GameObject("..\\res\\sphere.obj", "..\\res\\bricks.jpg");
+
 	generatedPerlinNoiseTexture.init("..\\res\\PerlinNoise\\GeneratedPerlinNoise.png", true);
 
 
@@ -348,8 +350,6 @@ void MainGame::linkNoiseShader()
 	monkey->transform.SetPos(glm::vec3(0.0, 0.0, -25));
 	monkey->transform.SetRot(glm::vec3(90, 0, 90));
 	monkey->transform.SetScale(glm::vec3(1.2, 1.2, 1.2));
-
-	//myCamera.MoveRight(0.0001);
 
 	noiseShader.Update(monkey->transform, myCamera);
 
