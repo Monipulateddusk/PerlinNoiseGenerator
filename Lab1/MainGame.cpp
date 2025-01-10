@@ -58,6 +58,12 @@ void MainGame::initSystems()
 	lavaTexture.init("..\\res\\lava3.jpg");
 	noiseTexture.init("..\\res\\noise.png");
 
+	// Height map textures
+	hM_Rock.init("..\\res\\rock2.jpg");
+	hM_Sand.init("..\\res\\sand.jpg");
+	hM_Snow.init("..\\res\\snow.jpg");
+	hM_Water.init("..\\res\\Water.jpg");
+	hM_Grass.init("..\\res\\greenGrass.jpg");
 
 	ADS.init("..\\res\\ADS.vert", "..\\res\\ADS.frag", "");
 	shader.init("..\\res\\shader.vert", "..\\res\\shader.frag", "");
@@ -392,9 +398,39 @@ void MainGame::linkHeightMapShader()
 
 	GLuint hML = glGetUniformLocation(heightMapShader.ID(), "heightMap");
 
-	glActiveTexture(GL_TEXTURE1);
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, generatedPerlinNoiseTexture.ID());
-	glUniform1i(hML, 1);
+	glUniform1i(hML, 0);
+
+	GLuint gL = glGetUniformLocation(heightMapShader.ID(), "grass");
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, hM_Grass.ID());
+	glUniform1i(gL, 1);
+
+	GLuint snowL = glGetUniformLocation(heightMapShader.ID(), "snow");
+
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, hM_Snow.ID());
+	glUniform1i(snowL, 2);
+
+	GLuint rL = glGetUniformLocation(heightMapShader.ID(), "rock");
+
+	glActiveTexture(GL_TEXTURE3);
+	glBindTexture(GL_TEXTURE_2D, hM_Rock.ID());
+	glUniform1i(rL, 3);
+
+	GLuint sandL = glGetUniformLocation(heightMapShader.ID(), "sand");
+
+	glActiveTexture(GL_TEXTURE4);
+	glBindTexture(GL_TEXTURE_2D, hM_Sand.ID());
+	glUniform1i(sandL, 4);
+
+	GLuint wL = glGetUniformLocation(heightMapShader.ID(), "water");
+
+	glActiveTexture(GL_TEXTURE5);
+	glBindTexture(GL_TEXTURE_2D, hM_Water.ID());
+	glUniform1i(wL, 5);
 
 	heightMapShader.setMat4("transform", plane->transform.GetModel());
 

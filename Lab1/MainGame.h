@@ -80,6 +80,7 @@ private:
 	Texture generatedPerlinNoiseTexture;
 #pragma endregion
 
+	Texture hM_Rock, hM_Sand, hM_Grass, hM_Water, hM_Snow;
 
 	Texture noiseTexture, lavaTexture;
 
