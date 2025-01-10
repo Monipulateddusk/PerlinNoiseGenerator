@@ -1,8 +1,5 @@
 #version 330 core
-out vec4 FragColor;
-in vec2 TexCoords;
 uniform sampler2D screenTexture;
-
 const float offset = 1.0 / 300.0;  
 vec2 offsets[9] = vec2[](
     vec2(-offset,  offset), // top-left
@@ -24,11 +21,18 @@ float kernel[9] = float[](
 
 vec3[9] sampleTex;
 
+in VS_OUT {
+	vec2 texCoords;
+}vs_in;
+
+out vec4 FragColor;
+
+
 void main()
 { 
     vec3 col = vec3(0,0,0);
     for(int i = 0; i < 9; i++){
-        sampleTex[i] = vec3(texture(screenTexture, (TexCoords.st + offsets[i])));
+        sampleTex[i] = vec3(texture(screenTexture, (vs_in.texCoords.st + offsets[i])));
 
         col += sampleTex[i] * kernel[i];
     }

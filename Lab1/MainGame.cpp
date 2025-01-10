@@ -66,7 +66,7 @@ void MainGame::initSystems()
 	FBOShader.init("..\\res\\FBOShader.vert", "..\\res\\FBOShader.frag");
 	grayScaleShader.init("..\\res\\grayScaleShader.vert", "..\\res\\grayScaleShader.frag");
 	edgeDetectionShader.init("..\\res\\edgeDetectionShader.vert", "..\\res\\edgeDetectionShader.frag");
-	noiseShader.init("..\\res\\noise.vert", "..\\res\\noise.frag");
+	noiseShader.init("..\\res\\perlinNoiseShader.vert", "..\\res\\perlinNoiseShader.frag");
 	glowShader.init("..\\res\\glow.vert", "..\\res\\glow.frag");
 	heightMapShader.init("..\\res\\heightMap.vert", "..\\res\\heightMap.frag");
 	

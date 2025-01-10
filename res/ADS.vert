@@ -9,17 +9,18 @@ layout (location = 2) in vec3 VertexNormal; // Vertex normals
 uniform mat4 transform; // Transformation Matrix (MVP). Automatically attached via the Shader.Update script taking in the transform's getModel to return the MVP
 uniform mat4 model; // Model matrix
 
-// Outputs to Frag shader (NAMES DON'T MATTER, ONLY DATA TYPE)
-out vec3 FragPos; // Fragment pos in world space
-out vec3 Normal; // Transformed normal (used for lighting)
-out vec2 TextureCoord;
+out VS_OUT {
+	vec2 texCoords;
+    vec3 fragPos;
+    vec3 normal;
+}vs_out;
 
 void main()
 {
-   	FragPos = vec3(model * vec4(VertexPosition, 1));
-    Normal = mat3(transpose(inverse(model))) * VertexNormal;
+   	vs_out.fragPos = vec3(model * vec4(VertexPosition, 1));
+    vs_out.normal = mat3(transpose(inverse(model))) * VertexNormal;
 
     gl_Position = transform * vec4(VertexPosition, 1);
-    TextureCoord = TexCoord;
+    vs_out.texCoords = TexCoord;
 
 }

@@ -4,7 +4,9 @@ layout (location = 1) in vec2 aTexCoords;
 
 uniform sampler2D heightMap;
 
-out vec2 TexCoords;
+out VS_OUT {
+	vec2 texCoords;
+}vs_out;
 
 
 void main()
@@ -15,5 +17,5 @@ void main()
     float newPositionY =  aPos.y + height;
     
     gl_Position = vec4(aPos.x, newPositionY, 0.0, 1.0); 
-    TexCoords = aTexCoords;
+    vs_out.texCoords = aTexCoords;
 }  

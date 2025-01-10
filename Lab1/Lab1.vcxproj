@@ -126,8 +126,6 @@
     <None Include="..\res\heightMap.vert" />
     <None Include="..\res\inversionShader.frag" />
     <None Include="..\res\inversionShader.vert" />
-    <None Include="..\res\noise.frag" />
-    <None Include="..\res\noise.vert" />
     <None Include="..\res\perlinNoiseShader.frag" />
     <None Include="..\res\perlinNoiseShader.vert" />
     <None Include="..\res\shader.frag" />
