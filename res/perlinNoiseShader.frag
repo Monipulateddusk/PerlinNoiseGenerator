@@ -31,13 +31,16 @@ void main() {
 	T2.x -= noise.y * 0.2; //this just offsets the texture coordinates
 	T2.y += noise.z * 0.2; // but allows us to offset y&z in opposite directions
 
-	float p = texture2D( texture1, T1).a; //get the alpha from the noise texture
+
+	float p = texture2D( texture1, T1).g;	// As my perlin noise ranges from white to black and not transparent, we are able to pull from any of the colour values for the p value
+											// This is because logically as I am interpreting the perlin into monochromatic channels,
+											// all colour values will scale the same from 0-1 from white to black
 
 	vec4 color = texture2D( texture2, T2); //coloured texture offset can here or above
 				
 	vec4 temp = color * ( vec4(p) * 2.0 ) + color; //add/remove the last colour
 
-	if( temp.r > 1.0 ) { temp.bg += clamp( temp.r - 2.0, 0.0, 100.0 ); } // again play about with these
+	if( temp.r > 1.0 ) { temp.bg += temp.r - 1.0;} // again play about with these clamp( temp.r - 2.0, 0.0, 100.0 );
 	if( temp.g > 1.0 ) { temp.rb += temp.g - 1.0; }
 	if( temp.b > 1.0 ) { temp.rg += temp.b - 1.0; } // = vec2(0.0,0.0)
 
