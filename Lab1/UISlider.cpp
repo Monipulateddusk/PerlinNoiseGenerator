@@ -123,7 +123,7 @@ void UISlider::drawUI()
 	/*		Text rendering - different to the button.We need two renders.		*/
 	// One that doesn't change saying 'Current Value: ' and the other will be updated by the current value
 
-	int yOffset = height + 10.f; // Offsetting the text rendering to 10 pixels plus the height of the slider so it sits just above the slider
+	int yOffset = height + 10; // Offsetting the text rendering to 10 pixels plus the height of the slider so it sits just above the slider
 	BitmapInfo info = writeText(sliderLabel.c_str(), (width / 2), height, 18);
 
 	// We can't assume that these aren't already enabled/disabled

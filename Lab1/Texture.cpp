@@ -52,7 +52,10 @@ void Texture::ClearTexture()
 	GLint format = 0;
 	if (channel == 3) {	format = GL_RGB;}
 	else if (channel == 4) { format = GL_RGBA; }
-	else { assert("UNDETERMINED FORMAT WHEN CLEARING TEXTURE OF ID: ", ID()); }
+	else {		
+		assert("UNDETERMINED FORMAT WHEN CLEARING TEXTURE OF ID: " + ID());
+	
+	}
 
 	glClearTexImage(textureHandler, 0, format, GL_UNSIGNED_BYTE, m_ImageData); // Clearing the data so we can write to the same texture ID but with new texture
 }

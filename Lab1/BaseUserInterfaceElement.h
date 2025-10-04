@@ -58,8 +58,6 @@ public:
 	inline void setPosition(int x, int y) { posX = x; posY = y; }
 	inline void setSize(int w, int h) { width = w, height = h; }
 
-	static std::list<BaseUserInterfaceElement*> elements;
-
 protected:
 
 	bool isMouseInside;

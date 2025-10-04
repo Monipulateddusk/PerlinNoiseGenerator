@@ -12,13 +12,15 @@ unsigned int indices[] = { 0, 1, 2 };
 
 
 
-MainGame::MainGame()
+MainGame::MainGame() : torus(NULL), sphere(NULL), plane(NULL), monkey(NULL), cube(NULL)
 {
 	curModelDisplayed = MODELDISPLAYED::PLANE_HEIGHT_MAP;
 	counter = 0; isADSEnabled = false;
 	_gameState = GameState::PLAY;
 	Display* _gameDisplay = new Display(); //new display
 	FBO = new FrameBufferObject();
+	quadVAO = 0;
+	quadVBO = 0;
 	perlinNoiseSeedValue = 0;
 	elementSelected = NULL;
 }
@@ -83,7 +85,7 @@ void MainGame::initSystems()
 									"..\\res\\SkyboxTextures\\bottom.jpg" ,"..\\res\\SkyboxTextures\\front.jpg" ,"..\\res\\SkyboxTextures\\back.jpg" });
 
 	skybox.init(skyboxPaths);
-	FBO->Init(_gameDisplay.getWidth(), _gameDisplay.getHeight());
+	FBO->Init((GLsizei)_gameDisplay.getWidth(), (GLsizei)_gameDisplay.getHeight());
 	initQuadVAO();
 
 	counter = 0.0f;
@@ -135,17 +137,17 @@ void MainGame::initUI()
 {
 	// Had odd occourance where the pointer given by the static inside the baseUserInterfaceElement was causing corrupted pointers when some events tried to fire
 	// Converting to smart pointers seemed to fix it
-	int origin = (int)(_gameDisplay.getWidth() / 3) * 1.81;
+	int origin = (int)((_gameDisplay.getWidth() / 3) * 1.81f);
 	int yOrigin = (int)(_gameDisplay.getHeight());
 
 
 	/*	Seed Slider	*/
 	yOrigin -= 70;
 	std::shared_ptr<UISlider> seedSlider = std::make_shared<UISlider>("Seed", 1.0f, 10000.0f, false, origin, yOrigin, 400, 20);
-	seedSlider->setValue(noiseGen.getSeedValue());
+	seedSlider->setValue((float)noiseGen.getSeedValue());
 	seedSlider->addListener([seedSlider, this]()
 		{
-			unsigned int seed = (unsigned int)seedSlider->getCurrentValue();
+			unsigned int seed = (unsigned int)(seedSlider->getCurrentValue());
 			noiseGen.setSeedValue(seed);
 		}
 	);
@@ -178,7 +180,7 @@ void MainGame::initUI()
 	/*	Ocative Slider	*/
 	yOrigin -= 70;
 	std::shared_ptr<UISlider> octSlider = std::make_shared<UISlider>("Ocative Count", 1.0f, 16.0f, false, origin, yOrigin, 400, 20);
-	octSlider->setValue(noiseGen.getOcativeCount());
+	octSlider->setValue((float)noiseGen.getOcativeCount());
 	octSlider->addListener([octSlider, this]()
 		{
 			int octCount = (int)octSlider->getCurrentValue();
@@ -189,7 +191,7 @@ void MainGame::initUI()
 
 	/*	Show Different Model Button	*/
 	yOrigin -= 120;
-	origin += 104.f;
+	origin += 104;
 	std::shared_ptr<UIButton> modelButton = std::make_shared<UIButton>("Show Sphere", origin, yOrigin, 200, 50);
 	modelButton->addListener([modelButton, this]()
 		{
@@ -283,6 +285,7 @@ void MainGame::processInput()
 
 					case SDLK_ESCAPE:
 						_gameState = GameState::EXIT;
+						break;
 					default:
 						break;
 				}
@@ -526,7 +529,7 @@ void MainGame::drawBackgroundUI()
 {
 	// Draw background
 	// If the origin is the bottom left, the origin of the quad would be 2/3 into the total screen size
-	int origin = (float)(_gameDisplay.getWidth() / 3) * 1.8f;
+	int origin = (int)((_gameDisplay.getWidth() / 3) * 1.8f);
 	glColor4f(0.3f, 0.3f, 0.3f, 1.f);
 
 	// Base drawing of the button's quad
@@ -545,7 +548,7 @@ void MainGame::drawUIElements()
 	{
 		element->drawUI();
 		// If we have our mouse hovered over something, process it and only it
-		if (element->updateUI(mouseState, _gameDisplay.getHeight())) {
+		if (element->updateUI(mouseState, (int)_gameDisplay.getHeight())) {
 
 			if (elementSelected == nullptr) {
 				elementSelected = element;
@@ -600,8 +603,8 @@ void MainGame::drawGame()
 	renderSkybox();
 
 	// Other 3d objects
-	renderEnvironmentMonkey();
-	renderExplosionSphere();
+	//renderEnvironmentMonkey();
+	//renderExplosionSphere();
 
 	glClear(GL_DEPTH_BUFFER_BIT); // Make height map or whatever the user selected is the most front faced object, Other objects would be rendered behind it
 	renderUserSelectedModel();

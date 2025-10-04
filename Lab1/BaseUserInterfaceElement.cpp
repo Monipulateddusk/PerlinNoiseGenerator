@@ -1,11 +1,8 @@
 #include "BaseUserInterfaceElement.h"
 
-std::list<BaseUserInterfaceElement*> BaseUserInterfaceElement::elements;
 
 BaseUserInterfaceElement::BaseUserInterfaceElement(int pX, int pY, int w, int h)
 {
-	elements.push_back(this);
-
 	posX = pX;
 	posY = pY;
 	width = w;
@@ -17,7 +14,6 @@ BaseUserInterfaceElement::BaseUserInterfaceElement(int pX, int pY, int w, int h)
 
 BaseUserInterfaceElement::~BaseUserInterfaceElement()
 {
-	elements.remove(this);
 }
 
 bool BaseUserInterfaceElement::updateUI(MouseState& state, int screenHeight)
@@ -77,22 +73,22 @@ BitmapInfo BaseUserInterfaceElement::writeText(const char* text, int b_w, int b_
 	unsigned char* bitmap = (unsigned char*)calloc(b_w * b_h * 4, sizeof(unsigned char));
 
 	// Font scaling calcs
-	float scale = stbtt_ScaleForPixelHeight(&fontInfo, l_h);
+	float scale = stbtt_ScaleForPixelHeight(&fontInfo, (float)l_h);
 
 	int ascent, descent, lineGap;
 	stbtt_GetFontVMetrics(&fontInfo, &ascent, &descent, &lineGap);
-	ascent = roundf(ascent * scale);
-	descent = roundf(descent * scale);
+	ascent = (int)(roundf((float)ascent * scale));
+	descent = (int)(roundf((float)descent * scale));
 
 	int x = 0;
-	for (int i = 0; i < strlen(text); ++i) {
+	for (size_t i = 0, ilen = strlen(text); i < ilen; ++i) {
 		// Calculate how wide the character is
 		int ax, lsb; //advance width, leftside bearing
 		stbtt_GetCodepointHMetrics(&fontInfo, text[i], &ax, &lsb);
 
 		// If we cannot get a character as it is not in our ttf file/not supported, skip it (don't render)
 		if (text[i] == ' ') {
-			x += roundf(ax * scale);
+			x += (int)(roundf(ax * scale));
 			continue;
 		}
 
@@ -132,12 +128,12 @@ BitmapInfo BaseUserInterfaceElement::writeText(const char* text, int b_w, int b_
 		}
 		free(charBitmap); // As we used malloc to assign the pointer, we must use free to free the memory - delete doesn't work
 
-		x += roundf(ax * scale);
+		x += (int)(roundf((float)ax * scale));
 
 		// add kerning to the width
 		int kern;
 		kern = stbtt_GetCodepointKernAdvance(&fontInfo, text[i], text[i + 1]);
-		x += roundf(kern * scale);
+		x += (int)(roundf((float)kern * scale));
 	}
 
 	return BitmapInfo(bitmap, b_w, b_h, l_h);

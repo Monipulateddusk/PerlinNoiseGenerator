@@ -13,8 +13,8 @@ public:
     PerlinNoiseGenerator(unsigned int& seedVal) : seed(seedVal), p_table {}, userSelectedOcativeCount(12), userSelectedAmp(1.0f), userSelectedFreq(1.0f) {}
 	~PerlinNoiseGenerator(){}
 
-    const float& Noise2D(const float& x, const float& y, const int& octavesNum);
-    const float& FractalBrownianMotion(const float& x, const float& y, const int& octavesNum);
+    const float Noise2D(const float& x, const float& y, const int& octavesNum);
+    const float FractalBrownianMotion(const float& x, const float& y, const int& octavesNum);
 
     void CreatePerlinNoiseTexture();
     void DebuggingOutputToConsole(const int& width, const int& height, const unsigned int& seedValue);

@@ -71,6 +71,6 @@ void Display::initDisplay()
 	glClearColor(0.0f, 1.0f, 1.0f, 1.0f);
 
 	// Set the viewport to match the screen dimensions
-	glViewport(0, 0, getWidth(), getHeight());
+	glViewport(0, 0, (GLsizei)(getWidth()), (GLsizei)(getHeight()));
 
 }

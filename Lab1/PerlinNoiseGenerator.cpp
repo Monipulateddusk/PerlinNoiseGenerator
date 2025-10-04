@@ -8,7 +8,7 @@
 /// </summary>
 /// <param name="x"></param>
 /// <param name="y"></param>
-const float& PerlinNoiseGenerator::Noise2D(const float& x, const float& y, const int& curOcative)
+const float PerlinNoiseGenerator::Noise2D(const float& x, const float& y, const int& curOcative)
 {
 	// Wrapping the X and Y to 256
 	const int X = static_cast<int>(std::floor(x)) & 255;
@@ -44,10 +44,11 @@ const float& PerlinNoiseGenerator::Noise2D(const float& x, const float& y, const
 
 	const float leftLerp = Lerp(dotBottomLeft, dotTopLeft, u);
 	const float rightLerp = Lerp(dotBottomRight, dotTopRight, u);
-	return Lerp(leftLerp, rightLerp, v);
+	const float res = Lerp(leftLerp, rightLerp, v);
+	return res;
 }
 
-const float& PerlinNoiseGenerator::FractalBrownianMotion(const float& x, const float& y, const int& octavesNum)
+const float PerlinNoiseGenerator::FractalBrownianMotion(const float& x, const float& y, const int& octavesNum)
 {
 	float amplitude = userSelectedAmp;
 	float frequency = userSelectedFreq;
@@ -80,7 +81,7 @@ void PerlinNoiseGenerator::CreatePerlinNoiseTexture()
 	// Populate the texture data with noise values
 	for (int h = 0; h < height; h++) {
 		for (int w = 0; w < width; w++) {
-			floatData = FractalBrownianMotion(w, h, userSelectedOcativeCount);
+			floatData = FractalBrownianMotion((float)w, (float)h, userSelectedOcativeCount);
 
 			floatData = (floatData - 0) / (1 - 0);
 
@@ -119,7 +120,7 @@ void PerlinNoiseGenerator::DebuggingOutputToConsole(const int& width, const int&
 	std::cout.precision(2);
 	for (int h = 0; h < height; h++) {
 		for (int w = 0; w < width; w++) {
-			float noiseVal = FractalBrownianMotion(w, h, 2);
+			float noiseVal = FractalBrownianMotion((float)w, (float)h, 2);
 
 			std::cout << std::fixed << noiseVal;
 
@@ -197,7 +198,7 @@ std::array<int,512> PerlinNoiseGenerator::CreatePermutationTable()
 /// <returns></returns>
 glm::vec2 PerlinNoiseGenerator::GetConstantVector(const unsigned int& permTableValue) 
 {
-	const float angle = (permTableValue / 255.f) * 2.f * std::_Pi_val;
+	const float angle = (const float)((permTableValue / 255.f) * 2.f * (float)(std::_Pi_val));
 	return glm::vec2(std::cos(angle), std::sin(angle));
 }
 
