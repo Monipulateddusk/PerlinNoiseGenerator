@@ -1,8 +1,5 @@
 #pragma once
-#include <SDL/SDL.h>
-#include <GL\glew.h>
-#include <iostream>
-#include <string>
+#include "DEFINITIONS.h"
 using namespace std;
 
 

@@ -1,9 +1,7 @@
 #pragma once
-#include <vector>
-#include <GL\glew.h>
+#include "DEFINITIONS.h"
 #include "stb_image.h"
 #include "Shader.h"
-#include <iostream>
 #include "Camera.h"
 
 using namespace std;

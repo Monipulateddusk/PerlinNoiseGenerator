@@ -1,12 +1,13 @@
 #pragma once
-#include <SDL\SDL.h>
-#include <GL/glew.h>
+#include "DEFINITIONS.h"
 #include "Display.h" 
 #include "Shader.h"
 #include "Skybox.h"
 #include "FrameBufferObject.h"
 #include "GameObject.h"
 #include "PerlinNoiseGenerator.h"
+#include "UIButton.h"
+#include "UISlider.h"
 
 enum class GameState{PLAY, EXIT};
 
@@ -22,23 +23,36 @@ private:
 
 	void initSystems();
 	void initQuadVAO();
+	void initUI();
 
 	void processInput();
 	void update();
 	void gameLoop();
 
+	void activateOrtho();
+	void disableOrtho();
+
 	void linkADS();
 	void linkGeoShader();
 	void linkEnviroMapping();
 	void linkNoiseShader();
+	void linkHeightMapShader();
+
+	void renderEnvironmentMonkey();
+	void renderExplosionSphere();
+	void renderUserSelectedModel();
 
 	void renderFBO();
 	void renderMonkey();
 	void renderSkybox();
 	void renderActiveShader();
+
+	void setPerlinNoiseTexture();
+	
+	void drawBackgroundUI();
+	void drawUIElements();
+	void drawGeneratedPerlinNoise();
 	void drawGame();
-
-
 
 	Display _gameDisplay;
 	GameState _gameState;
@@ -54,30 +68,37 @@ private:
 	Shader edgeDetectionShader;
 	Shader noiseShader;
 	Shader glowShader;
+	Shader heightMapShader;
 
 	#pragma endregion
+
+#pragma region UI
+	std::shared_ptr<BaseUserInterfaceElement> elementSelected;
+	MouseState mouseState;
+
+	std::vector<std::shared_ptr<BaseUserInterfaceElement>> uiElements;
+	Texture generatedPerlinNoiseTexture;
+#pragma endregion
+
+	Texture hM_Rock, hM_Sand, hM_Grass, hM_Water, hM_Snow;
 
 	Texture noiseTexture, lavaTexture;
 
 	Skybox skybox;
-	GameObject* monkey;
+	GameObject* monkey, *cube, *plane, *sphere, *torus;
 
 	PerlinNoiseGenerator noiseGen;
 
-
-	
-	//Mesh mesh1;
-	//Mesh mesh2;
 	Camera myCamera;
-	//Texture texture; 
 
 	FrameBufferObject* FBO;
-	//Transform transform;
 	GLuint quadVAO;
 	GLuint quadVBO;
 
 	float counter;
 	bool isADSEnabled;
+	enum MODELDISPLAYED {PLANE_HEIGHT_MAP, TORUS_PERLIN_TEXTURE};
+	MODELDISPLAYED curModelDisplayed;
 
 	unsigned int perlinNoiseSeedValue;
 };

@@ -1,10 +1,8 @@
 #pragma once
-#include <string>
-#include <GL\glew.h>
+#include "DEFINITIONS.h"
 #include "transform.h"
 #include "Camera.h"
-#include <iostream>
-#include <fstream>
+
 
 class Shader
 {

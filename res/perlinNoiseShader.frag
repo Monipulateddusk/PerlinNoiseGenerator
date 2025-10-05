@@ -10,37 +10,43 @@ uniform vec3 fogColor;
 uniform sampler2D texture1;
 uniform sampler2D texture2;
 
+in VS_OUT {
+	vec2 texCoords;
+	vec3 vert_norm;
+	vec4 vert_pos;
+}vs_in;
 
-in vec2 vUv;
-in vec4 v_pos;
 out vec4 FragColour;
 
 void main() {
 
-	vec2 position = - 1.0 + 2.0 * vUv;
+	vec2 position = - 1.0 + 2.0 * vs_in.texCoords;
 
-	vec4 noise = texture2D( texture1, vUv ); //noise texture
-	vec2 T1 = vUv + vec2( 1.5, - 1.5 ) *  0.2 * time; // "time" 'animates' the texture
-	vec2 T2 = vUv + vec2( - 0.5, 2.0 ) *  0.1 * time; // as above
+	vec4 noise = texture2D( texture1, vs_in.texCoords ); //noise texture
+	vec2 T1 = vs_in.texCoords + vec2( 1.5, - 1.5 ) *  0.2 * time; // "time" 'animates' the texture
+	vec2 T2 = vs_in.texCoords + vec2( - 0.5, 2.0 ) *  0.1 * time; // as above
 
 	T1.x += noise.x * 4; //offset change these 4 values to see the change in frequency, see notes at end of shader.
 	T1.y += noise.y * 2;
 	T2.x -= noise.y * 0.2; //this just offsets the texture coordinates
 	T2.y += noise.z * 0.2; // but allows us to offset y&z in opposite directions
 
-	float p = texture2D( texture1, T1).a; //get the alpha from the noise texture
+
+	float p = texture2D( texture1, T1).g;	// As my perlin noise ranges from white to black and not transparent, we are able to pull from any of the colour values for the p value
+											// This is because logically as I am interpreting the perlin into monochromatic channels,
+											// all colour values will scale the same from 0-1 from white to black
 
 	vec4 color = texture2D( texture2, T2); //coloured texture offset can here or above
 				
 	vec4 temp = color * ( vec4(p) * 2.0 ) + color; //add/remove the last colour
 
-	if( temp.r > 1.0 ) { temp.bg += clamp( temp.r - 2.0, 0.0, 100.0 ); } // again play about with these
+	if( temp.r > 1.0 ) { temp.bg += temp.r - 1.0;} // again play about with these clamp( temp.r - 2.0, 0.0, 100.0 );
 	if( temp.g > 1.0 ) { temp.rb += temp.g - 1.0; }
 	if( temp.b > 1.0 ) { temp.rg += temp.b - 1.0; } // = vec2(0.0,0.0)
 
 	FragColour = temp;
 
-	float dist = abs( v_pos.z ); //absolute value
+	float dist = abs( vs_in.vert_pos.z ); //absolute value
 	float fogFactor = (maxDist - dist)/(maxDist - minDist);
 	fogFactor = clamp( fogFactor, 0.0, 1.0 ); // constrain range
 

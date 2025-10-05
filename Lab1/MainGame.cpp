@@ -4,7 +4,6 @@
 #include <string>
 
 
-
 Vertex vertices[] = { Vertex(glm::vec3(-0.5, -0.5, 0), glm::vec2(0.0, 0.0)),
 					Vertex(glm::vec3(0, 0.5, 0), glm::vec2(0.5, 1.0)),
 					Vertex(glm::vec3(0.5, -0.5, 0), glm::vec2(1.0, 0.0)) };
@@ -13,18 +12,25 @@ unsigned int indices[] = { 0, 1, 2 };
 
 
 
-MainGame::MainGame()
+MainGame::MainGame() : torus(NULL), sphere(NULL), plane(NULL), monkey(NULL), cube(NULL)
 {
+	curModelDisplayed = MODELDISPLAYED::PLANE_HEIGHT_MAP;
 	counter = 0; isADSEnabled = false;
 	_gameState = GameState::PLAY;
 	Display* _gameDisplay = new Display(); //new display
 	FBO = new FrameBufferObject();
+	quadVAO = 0;
+	quadVBO = 0;
 	perlinNoiseSeedValue = 0;
+	elementSelected = NULL;
 }
 
 MainGame::~MainGame()
 {
 	delete monkey;
+	delete cube;
+	delete plane;
+	delete torus;
 }
 
 void MainGame::run()
@@ -36,14 +42,30 @@ void MainGame::run()
 void MainGame::initSystems()
 {
 	_gameDisplay.initDisplay(); 
-	//mesh1.init(vertices, sizeof(vertices) / sizeof(vertices[0]), indices, sizeof(indices) / sizeof(indices[0])); //size calcuated by number of bytes of an array / no bytes of one element
-	/*mesh2.loadModel("..\\res\\monkey3.obj");*/
 
-	monkey = new GameObject("..\\res\\monkey3.obj", "..\\res\\bricks.jpg");
+	monkey = new GameObject("..\\res\\monkey3.obj", "..\\res\\Water.jpg");
+	monkey->transform.SetPos(glm::vec3(0, 2.5f, 0));
+
+	cube = new GameObject("..\\res\\cube.obj", "..\\res\\PerlinNoise\\GeneratedPerlinNoise.png", true);
+	plane = new GameObject("..\\res\\subdividedPlane2.obj", "..\\res\\PerlinNoise\\GeneratedPerlinNoise.png");
+	plane->transform.SetPos(glm::vec3(0.0, -0.5f, -25));
+	plane->transform.SetScale(glm::vec3(1.2, 1.2, 1.2));
+
+	sphere = new GameObject("..\\res\\sphere.obj", "..\\res\\bricks.jpg");
+
+	torus = new GameObject("..\\res\\Torus2.obj", "..\\res\\PerlinNoise\\GeneratedPerlinNoise.png", true);
+	generatedPerlinNoiseTexture.init("..\\res\\PerlinNoise\\GeneratedPerlinNoise.png", true);
+
 
 	lavaTexture.init("..\\res\\lava3.jpg");
 	noiseTexture.init("..\\res\\noise.png");
 
+	// Height map textures
+	hM_Rock.init("..\\res\\rock2.jpg");
+	hM_Sand.init("..\\res\\sand.jpg");
+	hM_Snow.init("..\\res\\snow.jpg");
+	hM_Water.init("..\\res\\Water.jpg");
+	hM_Grass.init("..\\res\\greenGrass.jpg");
 
 	ADS.init("..\\res\\ADS.vert", "..\\res\\ADS.frag", "");
 	shader.init("..\\res\\shader.vert", "..\\res\\shader.frag", "");
@@ -52,26 +74,24 @@ void MainGame::initSystems()
 	FBOShader.init("..\\res\\FBOShader.vert", "..\\res\\FBOShader.frag");
 	grayScaleShader.init("..\\res\\grayScaleShader.vert", "..\\res\\grayScaleShader.frag");
 	edgeDetectionShader.init("..\\res\\edgeDetectionShader.vert", "..\\res\\edgeDetectionShader.frag");
-	noiseShader.init("..\\res\\noise.vert", "..\\res\\noise.frag");
+	noiseShader.init("..\\res\\perlinNoiseShader.vert", "..\\res\\perlinNoiseShader.frag");
 	glowShader.init("..\\res\\glow.vert", "..\\res\\glow.frag");
+	heightMapShader.init("..\\res\\heightMap.vert", "..\\res\\heightMap.frag");
 	
 
-	/*texture.init("..\\res\\bricks.jpg"); */
-	myCamera.initCamera(glm::vec3(0, 0, -30), 70.0f, (float)_gameDisplay.getWidth()/_gameDisplay.getHeight(), 0.01f, 1000.0f);
+	myCamera.initCamera(glm::vec3(-1, 0, -30), 70.0f, (float)_gameDisplay.getWidth()/_gameDisplay.getHeight(), 0.01f, 1000.0f);
 
 	vector<string> skyboxPaths({ "..\\res\\SkyboxTextures\\right.jpg" ,"..\\res\\SkyboxTextures\\left.jpg" ,"..\\res\\SkyboxTextures\\top.jpg",
 									"..\\res\\SkyboxTextures\\bottom.jpg" ,"..\\res\\SkyboxTextures\\front.jpg" ,"..\\res\\SkyboxTextures\\back.jpg" });
 
 	skybox.init(skyboxPaths);
-	FBO->Init(_gameDisplay.getWidth(), _gameDisplay.getHeight());
+	FBO->Init((GLsizei)_gameDisplay.getWidth(), (GLsizei)_gameDisplay.getHeight());
 	initQuadVAO();
 
 	counter = 0.0f;
 
 	noiseGen.CreatePerlinNoiseTexture();
-
-
-	SDL_SetRelativeMouseMode(SDL_TRUE);
+	initUI();
 }
 
 void MainGame::initQuadVAO()
@@ -102,6 +122,108 @@ void MainGame::initQuadVAO()
 
 
 }
+/// <summary>
+/// All UI elements are put into a vector containing smart pointers to each UI element. 
+/// Due to polymorphism, we can correctly store it as the base component and get their overriden mechanics
+/// 
+/// Method is:
+/// -	Declare object as shared pointer
+/// -	Declare the Lambda event
+/// -	Add the shared pointer to the vector
+/// 
+/// OpenAI assisted with getting the lambda event declaration working syntaxically
+/// /// </summary>
+void MainGame::initUI()
+{
+	// Had odd occourance where the pointer given by the static inside the baseUserInterfaceElement was causing corrupted pointers when some events tried to fire
+	// Converting to smart pointers seemed to fix it
+	int origin = (int)((_gameDisplay.getWidth() / 3) * 1.81f);
+	int yOrigin = (int)(_gameDisplay.getHeight());
+
+
+	/*	Seed Slider	*/
+	yOrigin -= 70;
+	std::shared_ptr<UISlider> seedSlider = std::make_shared<UISlider>("Seed", 1.0f, 10000.0f, false, origin, yOrigin, 400, 20);
+	seedSlider->setValue((float)noiseGen.getSeedValue());
+	seedSlider->addListener([seedSlider, this]()
+		{
+			unsigned int seed = (unsigned int)(seedSlider->getCurrentValue());
+			noiseGen.setSeedValue(seed);
+		}
+	);
+	uiElements.push_back(std::static_pointer_cast<BaseUserInterfaceElement>(seedSlider));
+
+	/*	Amplitude Slider	*/
+	yOrigin -= 70;
+	std::shared_ptr<UISlider> ampSlider = std::make_shared<UISlider>("Amplitude", 1.0f, 6.0f, true, origin, yOrigin, 400, 20);
+	ampSlider->setValue(noiseGen.getAmpCount());
+	ampSlider->addListener([ampSlider, this]()
+		{
+			float ampCount = ampSlider->getCurrentValue();
+			noiseGen.setAmpCount(ampCount);
+		}
+	);
+	uiElements.push_back(std::static_pointer_cast<BaseUserInterfaceElement>(ampSlider));
+
+	/*	Frequency Slider	*/
+	yOrigin -= 70;
+	std::shared_ptr<UISlider> freqSlider = std::make_shared<UISlider>("Frequency", 1.0f, 3.00f, true, origin, yOrigin, 400, 20);
+	freqSlider->setValue(noiseGen.getFreqCount());
+	freqSlider->addListener([freqSlider, this]()
+		{
+			float freqCount = freqSlider->getCurrentValue();
+			noiseGen.setFreqCount(freqCount);
+		}
+	);
+	uiElements.push_back(std::static_pointer_cast<BaseUserInterfaceElement>(freqSlider));
+
+	/*	Ocative Slider	*/
+	yOrigin -= 70;
+	std::shared_ptr<UISlider> octSlider = std::make_shared<UISlider>("Ocative Count", 1.0f, 16.0f, false, origin, yOrigin, 400, 20);
+	octSlider->setValue((float)noiseGen.getOcativeCount());
+	octSlider->addListener([octSlider, this]()
+		{
+			int octCount = (int)octSlider->getCurrentValue();
+			noiseGen.setOcativeCount(octCount);
+		}
+	);
+	uiElements.push_back(std::static_pointer_cast<BaseUserInterfaceElement>(octSlider));
+
+	/*	Show Different Model Button	*/
+	yOrigin -= 120;
+	origin += 104;
+	std::shared_ptr<UIButton> modelButton = std::make_shared<UIButton>("Show Sphere", origin, yOrigin, 200, 50);
+	modelButton->addListener([modelButton, this]()
+		{
+			// Get the next model, increment it and cap it to between 0 or 1
+			int nextModel = (int)curModelDisplayed;
+			nextModel++;
+			if (nextModel > 1) { nextModel = 0; }
+
+			curModelDisplayed = MODELDISPLAYED(nextModel); // Get the next model
+
+			// Set the button's text to what the other model
+			std::string label = curModelDisplayed == MODELDISPLAYED::PLANE_HEIGHT_MAP ? "SHOW TORUS" : "SHOW PLANE";
+			modelButton->setLabel(label);
+
+		}
+	);
+	// Set the correct text upon start up
+	std::string label = curModelDisplayed == MODELDISPLAYED::PLANE_HEIGHT_MAP ? "SHOW TORUS" : "SHOW PLANE";
+	modelButton->setLabel(label);
+	uiElements.push_back(std::static_pointer_cast<BaseUserInterfaceElement>(modelButton));
+
+	/*	Generate Perlin Button	*/
+	yOrigin -= 90;
+	std::shared_ptr<UIButton> perlinButton = std::make_shared<UIButton>("Generate Perlin", origin, yOrigin, 200, 50);
+	perlinButton->addListener([this]()
+		{
+			noiseGen.CreatePerlinNoiseTexture();
+			setPerlinNoiseTexture();
+		}
+	);
+	uiElements.push_back(std::static_pointer_cast<BaseUserInterfaceElement>(perlinButton));
+}
 
 void MainGame::gameLoop()
 {
@@ -113,11 +235,38 @@ void MainGame::gameLoop()
 	}
 }
 
+void MainGame::activateOrtho()
+{
+	// Switching the matrix mode to projection, saving it and resetting it to identity to remove translations.
+	// Done for both projection and model view matrixs
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	glOrtho(0.0, _gameDisplay.getWidth(), 0.0, _gameDisplay.getHeight(), -1.0, 1.0);
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+}
+
+void MainGame::disableOrtho()
+{
+	// Restoring the projection and model view matrixs for use next frame in 3d rendering 
+	glPopMatrix();
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+}
+
 
 
 void MainGame::processInput()
 {
 	SDL_Event evnt;
+	SDL_GetMouseState(&mouseState.mouseXPos, &mouseState.mouseYPos);
+
+	mouseState.LeftButtonDown = SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT);
+	mouseState.MiddleButtonDown = SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_MIDDLE);
+	mouseState.RightButtonDown = SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT);
 
 	while(SDL_PollEvent(&evnt)) //get and process events
 	{
@@ -129,46 +278,20 @@ void MainGame::processInput()
 
 			case SDL_KEYUP:
 				switch (evnt.key.keysym.sym) {
-				case SDLK_s:
-					// Switch between the different shaders
-					isADSEnabled = !isADSEnabled;
+					case SDLK_s:
+						// Switch between the different shaders
+						isADSEnabled = !isADSEnabled;
+						break;
 
-					break;
-
-
-				case SDLK_RIGHT: // Increment the seed value on the perlin noise generator
-					perlinNoiseSeedValue++;
-					break;
-
-				case SDLK_LEFT: // Decrement the seed value on the perlin noise generator
-					perlinNoiseSeedValue == 0 ? perlinNoiseSeedValue = 0 : perlinNoiseSeedValue--;
-					break;
-
-				case SDLK_BACKSPACE:
-					system("cls");
-					std::cout << "BACKSPACE KEY PRESSED" << std::endl;
-					noiseGen.SetSeedValue(perlinNoiseSeedValue);
-					noiseGen.CreatePerlinNoiseTexture();
-					break;
-
-				case SDLK_ESCAPE:
-					_gameState = GameState::EXIT;
-				default:
-					break;
+					case SDLK_ESCAPE:
+						_gameState = GameState::EXIT;
+						break;
+					default:
+						break;
 				}
 			break;
-
-			// Mouse input
-			case SDL_MOUSEMOTION:
-				float xRel = evnt.motion.xrel, yRel = evnt.motion.yrel;
-				myCamera.Pitch(yRel / 1000);
-				myCamera.Yaw(-xRel / 1000);
-
-				break;
-
 		}
 	}
-	
 }
 
 void MainGame::update()
@@ -209,10 +332,18 @@ void MainGame::linkGeoShader()
 
 	geomShader.setFloat("time", counter);
 
+	GLuint t1L = glGetUniformLocation(geomShader.ID(), "diffuse"); //texture 1 location
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, sphere->texture.ID());
+	glUniform1i(t1L, 1);
 }
 
 void MainGame::linkEnviroMapping()
 {
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	enviroMappingShader.Bind();
 	enviroMappingShader.setMat4("model", monkey->transform.GetModel());
 	enviroMappingShader.setVec3("cameraPos", myCamera.getPos());
 
@@ -239,35 +370,116 @@ void MainGame::linkNoiseShader()
 	noiseShader.setVec3("fogColor", 0.0f, 0.0f, 0.5f);
 	noiseShader.setFloat("maxDist", 10.0f);
 	noiseShader.setFloat("minDist", 0.0f);
+
 	GLuint t1L = glGetUniformLocation(noiseShader.ID(), "texture1"); //texture 1 location
 	GLuint t2L = glGetUniformLocation(noiseShader.ID(), "texture2");
 
 	//set textures
 	glActiveTexture(GL_TEXTURE0); //set acitve texture unit
-	glBindTexture(GL_TEXTURE_2D, noiseTexture.ID());
+	glBindTexture(GL_TEXTURE_2D, generatedPerlinNoiseTexture.ID());
+
 	glUniform1i(t1L, 0);
 
 	glActiveTexture(GL_TEXTURE1); //set acitve texture unit
 	glBindTexture(GL_TEXTURE_2D, lavaTexture.ID());
 	glUniform1i(t2L, 1);
 
-	//type of and texture to bind to unit
+	torus->transform.SetPos(glm::vec3(0.0, 0.0, -25));
+	torus->transform.SetRot(glm::vec3(90, 0, 90));
+	torus->transform.SetScale(glm::vec3(1.2, 1.2, 1.2));
 
+	noiseShader.Update(torus->transform, myCamera);
+	torus->mesh.draw();
+}
 
-	monkey->transform.SetPos(glm::vec3(0.0, 0.0, -25));
-	monkey->transform.SetRot(glm::vec3(0.0, 10, 0.0));
-	monkey->transform.SetScale(glm::vec3(1.2, 1.2, 1.2));
+void MainGame::linkHeightMapShader()
+{
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_CULL_FACE); // Allowing faces that don't face the camera to be rendered
+	heightMapShader.Bind();
 
-	myCamera.MoveRight(0.0001);
+	GLuint hML = glGetUniformLocation(heightMapShader.ID(), "heightMap");
 
-	noiseShader.Update(monkey->transform, myCamera);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, generatedPerlinNoiseTexture.ID());
+	glUniform1i(hML, 0);
 
+	GLuint gL = glGetUniformLocation(heightMapShader.ID(), "grass");
 
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, hM_Grass.ID());
+	glUniform1i(gL, 1);
 
-	monkey->mesh.draw();
+	GLuint snowL = glGetUniformLocation(heightMapShader.ID(), "snow");
+
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, hM_Snow.ID());
+	glUniform1i(snowL, 2);
+
+	GLuint rL = glGetUniformLocation(heightMapShader.ID(), "rock");
+
+	glActiveTexture(GL_TEXTURE3);
+	glBindTexture(GL_TEXTURE_2D, hM_Rock.ID());
+	glUniform1i(rL, 3);
+
+	GLuint sandL = glGetUniformLocation(heightMapShader.ID(), "sand");
+
+	glActiveTexture(GL_TEXTURE4);
+	glBindTexture(GL_TEXTURE_2D, hM_Sand.ID());
+	glUniform1i(sandL, 4);
+
+	GLuint wL = glGetUniformLocation(heightMapShader.ID(), "water");
+
+	glActiveTexture(GL_TEXTURE5);
+	glBindTexture(GL_TEXTURE_2D, hM_Water.ID());
+	glUniform1i(wL, 5);
+
+	heightMapShader.setMat4("transform", plane->transform.GetModel());
+
+	heightMapShader.Update(plane->transform, myCamera);
+
+	plane->transform.SetRot(glm::vec3(0, 0+counter, 25.1f));
+
+	plane->mesh.draw();
 }
 
 
+
+void MainGame::renderEnvironmentMonkey()
+{
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	linkEnviroMapping(); 
+
+	monkey->transform.SetPos(glm::vec3(0, 2.0f, -14.0f));
+	enviroMappingShader.Update(monkey->transform, myCamera);
+	monkey->mesh.draw();
+}
+
+void MainGame::renderExplosionSphere()
+{
+	geomShader.Bind();
+	linkGeoShader();
+
+	sphere->transform.SetPos(glm::vec3(5.0f, 2.0f, -14.0f));
+	geomShader.Update(sphere->transform, myCamera);
+	sphere->mesh.draw();
+}
+
+void MainGame::renderUserSelectedModel()
+{
+	switch (curModelDisplayed) 
+	{
+		case MODELDISPLAYED::PLANE_HEIGHT_MAP:
+			linkHeightMapShader();
+			break;
+		
+		case MODELDISPLAYED::TORUS_PERLIN_TEXTURE:
+			linkNoiseShader();
+			break;
+	}
+}
 
 void MainGame::renderFBO()
 {
@@ -307,37 +519,121 @@ void MainGame::renderActiveShader()
 	}
 }
 
+void MainGame::setPerlinNoiseTexture()
+{
+	generatedPerlinNoiseTexture.ClearTexture();
+	generatedPerlinNoiseTexture.init("..\\res\\PerlinNoise\\GeneratedPerlinNoise.png", true);
+}
+
+void MainGame::drawBackgroundUI()
+{
+	// Draw background
+	// If the origin is the bottom left, the origin of the quad would be 2/3 into the total screen size
+	int origin = (int)((_gameDisplay.getWidth() / 3) * 1.8f);
+	glColor4f(0.3f, 0.3f, 0.3f, 1.f);
+
+	// Base drawing of the button's quad
+	glBegin(GL_QUADS);
+		glVertex2d(_gameDisplay.getWidth(), 0);
+		glVertex2d(origin, 0);
+		glVertex2d(origin, _gameDisplay.getHeight());
+		glVertex2d(_gameDisplay.getWidth(), _gameDisplay.getHeight());
+	glEnd();
+}
+
+void MainGame::drawUIElements()
+{
+	// Basically, only allow processing of a specific UI element so that we check if the cursor is within the bounds of an object and then process it's logic
+	for (auto& element : uiElements)
+	{
+		element->drawUI();
+		// If we have our mouse hovered over something, process it and only it
+		if (element->updateUI(mouseState, (int)_gameDisplay.getHeight())) {
+
+			if (elementSelected == nullptr) {
+				elementSelected = element;
+			}
+		}
+		// When our mouse is not over this object, deselect it but it was before, deselect it. 
+		else if (element == elementSelected) {
+			elementSelected = nullptr;
+		}
+	}
+}
+
+void MainGame::drawGeneratedPerlinNoise()
+{
+	int originX = (int)((_gameDisplay.getWidth() / 3) * 1.8f) + 76;
+	int originY = 10;
+
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, generatedPerlinNoiseTexture.ID());
+
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+	glBegin(GL_QUADS);
+		// Tex coords - Top Left | Vertex origin of 0,0
+		glTexCoord2f(0.0f, 1.0f);
+		glVertex2d(originX, originY);
+
+		// Tex coords - Top right | Vertex origin of 1,0
+		glTexCoord2f(1.0f, 1.0f);
+		glVertex2d(originX + 256, originY);
+
+		// Tex coords - Bottom Right | Vertex origin of 1,1
+		glTexCoord2f(1.0f, 0.0f);
+		glVertex2d(originX + 256, originY + 256);
+
+		// Tex coords - Bottom Left | Vertex origin of 0,1
+		glTexCoord2f(0.0f, 0.0f);
+		glVertex2d(originX, originY + 256);
+
+	glEnd();
+	glDisable(GL_TEXTURE_2D);
+}
+
 void MainGame::drawGame()
 {
-	_gameDisplay.clearDisplay(0.0f, 0.0f, 0.0f, 1.0f);
+	_gameDisplay.clearDisplay(1.0f, 1.0f, 1.0f, 1.0f);
 
-	//FBO->Bind(); // Bind the FBO
+	// ----- 3D Rendering -----
+	// Enable depth, texture culling and texture mapping for 3D rendering
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
 
-	// Render the scene to the FBO
 	renderSkybox();
-	linkNoiseShader();
 
-	/*myCamera.MoveRight(0.0001);
-	myCamera.setLook((*monkey->transform.GetPos()));*/
+	// Other 3d objects
+	//renderEnvironmentMonkey();
+	//renderExplosionSphere();
 
+	glClear(GL_DEPTH_BUFFER_BIT); // Make height map or whatever the user selected is the most front faced object, Other objects would be rendered behind it
+	renderUserSelectedModel();
 
-	//renderActiveShader();
-	//renderMonkey();
+	// For whatever reason we need to render some kind of shader for the text to render.
+	// If we render none, the text wont render despite the fact we are disabling shaders in the UI
+	enviroMappingShader.Bind();
+	linkEnviroMapping();
+	// ----- 2D Rendering -----
+	
+	// Clear depth buffer & disabling 3D-specific effects or settings including disabling shaders
+	glClear(GL_DEPTH_BUFFER_BIT);
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
+	glUseProgram(0);
 
-	//FBO->UnBind(); // UnBind and render the FBO
-	//renderFBO();
+	// Set up an orthographic projection matrix
+	activateOrtho();
 
-	glEnable(GL_DEPTH_TEST);	
+	drawBackgroundUI();
+	drawUIElements();
+	drawGeneratedPerlinNoise();
 
-	// Render scene again
-	//renderSkybox();
-	//renderActiveShader();
-	//renderMonkey();
+	// Disable said orthographic matrix for 3d rendering next frame
+	disableOrtho();
 
-
-	glEnableClientState(GL_COLOR_ARRAY); 
-	glEnd();
-
+	// Swap the buffer
 	_gameDisplay.swapBuffer();
 }
+
+
 

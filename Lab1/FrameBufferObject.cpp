@@ -22,7 +22,6 @@ void FrameBufferObject::Init(const GLsizei width, const GLsizei height)
 
 	// Debug that we created the Frame Buffer Object sucessfully and all attachments work
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE) {
-		std::cout << "FRAMEBUFFER:: Framebuffer is complete!" << std::endl;
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	}

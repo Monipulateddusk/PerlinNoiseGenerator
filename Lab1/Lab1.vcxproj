@@ -72,6 +72,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BaseUserInterfaceElement.cpp" />
+    <ClCompile Include="Button.cpp" />
     <ClCompile Include="Display.cpp" />
     <ClCompile Include="FrameBufferObject.cpp" />
     <ClCompile Include="GameObject.cpp" />
@@ -84,8 +86,14 @@
     <ClCompile Include="Skybox.cpp" />
     <ClCompile Include="stb_image.c" />
     <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="UIButton.cpp" />
+    <ClCompile Include="UISlider.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BaseUserInterfaceElement.h" />
+    <ClInclude Include="DEFINITIONS.h" />
+    <ClInclude Include="stb_truetype.h" />
+    <ClInclude Include="UIButton.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Display.h" />
     <ClInclude Include="FrameBufferObject.h" />
@@ -99,6 +107,7 @@
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="transform.h" />
+    <ClInclude Include="UISlider.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\res\ADS.frag" />
@@ -113,10 +122,10 @@
     <None Include="..\res\Glow.vert" />
     <None Include="..\res\grayScaleShader.frag" />
     <None Include="..\res\grayScaleShader.vert" />
+    <None Include="..\res\heightMap.frag" />
+    <None Include="..\res\heightMap.vert" />
     <None Include="..\res\inversionShader.frag" />
     <None Include="..\res\inversionShader.vert" />
-    <None Include="..\res\noise.frag" />
-    <None Include="..\res\noise.vert" />
     <None Include="..\res\perlinNoiseShader.frag" />
     <None Include="..\res\perlinNoiseShader.vert" />
     <None Include="..\res\shader.frag" />

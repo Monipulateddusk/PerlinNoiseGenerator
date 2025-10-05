@@ -68,8 +68,9 @@ void Display::initDisplay()
 		returnError("GLEW failed to initialise");
 	}
 
-	glEnable(GL_DEPTH_TEST); //enable z-buffering 
-	glEnable(GL_CULL_FACE); //dont draw faces that are not pointing at the camera
-
 	glClearColor(0.0f, 1.0f, 1.0f, 1.0f);
+
+	// Set the viewport to match the screen dimensions
+	glViewport(0, 0, (GLsizei)(getWidth()), (GLsizei)(getHeight()));
+
 }
