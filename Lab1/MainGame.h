@@ -29,10 +29,18 @@ private:
 	void update();
 	void gameLoop();
 
+	void activateOrtho();
+	void disableOrtho();
+
 	void linkADS();
 	void linkGeoShader();
 	void linkEnviroMapping();
 	void linkNoiseShader();
+	void linkHeightMapShader();
+
+	void renderEnvironmentMonkey();
+	void renderExplosionSphere();
+	void renderUserSelectedModel();
 
 	void renderFBO();
 	void renderMonkey();
@@ -60,6 +68,7 @@ private:
 	Shader edgeDetectionShader;
 	Shader noiseShader;
 	Shader glowShader;
+	Shader heightMapShader;
 
 	#pragma endregion
 
@@ -71,11 +80,12 @@ private:
 	Texture generatedPerlinNoiseTexture;
 #pragma endregion
 
+	Texture hM_Rock, hM_Sand, hM_Grass, hM_Water, hM_Snow;
 
 	Texture noiseTexture, lavaTexture;
 
 	Skybox skybox;
-	GameObject* monkey, *cube;
+	GameObject* monkey, *cube, *plane, *sphere, *torus;
 
 	PerlinNoiseGenerator noiseGen;
 
@@ -87,6 +97,8 @@ private:
 
 	float counter;
 	bool isADSEnabled;
+	enum MODELDISPLAYED {PLANE_HEIGHT_MAP, TORUS_PERLIN_TEXTURE};
+	MODELDISPLAYED curModelDisplayed;
 
 	unsigned int perlinNoiseSeedValue;
 };

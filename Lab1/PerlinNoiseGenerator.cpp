@@ -8,61 +8,65 @@
 /// </summary>
 /// <param name="x"></param>
 /// <param name="y"></param>
-const float& PerlinNoiseGenerator::Noise2D(const float& x, const float& y, const int& curOcative)
+const float PerlinNoiseGenerator::Noise2D(const float& x, const float& y, const int& curOcative)
 {
 	// Wrapping the X and Y to 256
-	const int X = static_cast<int>(std::floor(x)) & 255;
-	const int Y = static_cast<int>(std::floor(y)) & 255;
+	int X = static_cast<int>(std::floor(x)) & 255;
+	int Y = static_cast<int>(std::floor(y)) & 255;
 
-	const float xf = x - std::floor(x);
-	const float yf = y - std::floor(y);
-
-	// Declare the corners of the grid square assigned to this coordinate
-	const glm::vec2 topLeft = glm::vec2(xf, yf - 1.0f);
-	const glm::vec2 topRight = glm::vec2(xf - 1.0f, yf - 1.0f);
-	const glm::vec2 bottomLeft = glm::vec2(xf, yf);
-	const glm::vec2 bottomRight = glm::vec2(xf - 1.0f, yf);
+	float xf = x - std::floor(x);
+	float yf = y - std::floor(y);
 
 	// Selecting the value from the permutation array for each corner
-	const int aa = p_table[	(p_table[X % 256] + Y		) % 256]; // Bottom left
-	const int ab = p_table[	(p_table[X % 256] + Y + 1	) % 256]; // Top left
-	const int ba = p_table[	(p_table[(X + 1) % 256] + Y	) % 256]; // Bottom Right
-	const int bb = p_table[	(p_table[(X + 1) % 256] + Y + 1) % 256]; // Top Right
+	int aa = p_table[	(p_table[X] + Y		) & 255]; // Bottom left
+	int ab = p_table[	(p_table[X] + Y + 1	) & 255]; // Top left
+	int ba = p_table[	(p_table[(X + 1)] + Y	) & 255]; // Bottom Right
+	int bb = p_table[	(p_table[(X + 1)] + Y + 1) & 255]; // Top Right
 
-	const glm::vec2 vecTopRight = GetConstantVector(bb);
-	const glm::vec2 vecTopLeft= GetConstantVector(ab);
-	const glm::vec2 vecBottomRight = GetConstantVector(ba);
-	const glm::vec2 vecBottomLeft = GetConstantVector(aa);
+	glm::vec2 vecBottomLeft = GetConstantVector(aa);
+	glm::vec2 vecTopLeft = GetConstantVector(ab);
+	glm::vec2 vecBottomRight = GetConstantVector(ba);
+	glm::vec2 vecTopRight = GetConstantVector(bb);
 
-	const float dotTopRight = glm::dot(topRight, vecTopRight);
-	const float dotTopLeft = glm::dot(topLeft, vecTopLeft);
-	const float dotBottomRight = glm::dot(bottomRight, vecBottomRight);
-	const float dotBottomLeft = glm::dot(bottomLeft, vecBottomLeft);
+	// Declare the corners of the grid square assigned to this coordinate
+	glm::vec2 bottomLeft = glm::vec2(xf, yf);
+	glm::vec2 bottomRight = glm::vec2(xf - 1.0f, yf);
+	glm::vec2 topLeft = glm::vec2(xf, yf - 1.0f);
+	glm::vec2 topRight = glm::vec2(xf - 1.0f, yf - 1.0f);
+
+	float dotBottomLeft = glm::dot(vecBottomLeft, bottomLeft);
+	float dotBottomRight = glm::dot(vecBottomRight, bottomRight);
+	float dotTopLeft = glm::dot(vecTopLeft, topLeft);
+	float dotTopRight = glm::dot(vecTopRight, topRight);
 
 	const float u = SmoothStep(xf);
 	const float v = SmoothStep(yf);
 
-	const float leftLerp = Lerp(dotBottomLeft, dotTopLeft, u);
-	const float rightLerp = Lerp(dotBottomRight, dotTopRight, u);
-	return Lerp(leftLerp, rightLerp, v);
+	const float bottomLerp = Lerp(dotBottomLeft, dotBottomRight, u);
+	const float topLerp = Lerp(dotTopLeft, dotTopRight, u);
+	const float res = Lerp(bottomLerp, topLerp, v);
+	return res;
 }
 
-const float& PerlinNoiseGenerator::FractalBrownianMotion(const float& x, const float& y, const int& octavesNum)
+const float PerlinNoiseGenerator::FractalBrownianMotion(const float& x, const float& y, const int& octavesNum)
 {
 	float amplitude = userSelectedAmp;
 	float frequency = userSelectedFreq;
+	float persistence = 0.5f;
+	float lacunarity = 2.0f;
 	float maxAmp = 0.0f;
 	float result = 0;
 
 	for (int o = 0; o < octavesNum; o++) {
-		const float n = amplitude * Noise2D((x * frequency) / 256, (y * frequency) / 256, o);
+		const float n = amplitude * Noise2D((x * frequency), (y * frequency), o);
 		result += n;
-
 		maxAmp += amplitude;
-		amplitude *= 0.5f;
-		frequency *= 2.f;
+
+		amplitude *= persistence;
+		frequency *= lacunarity;
 	}
 	result /= maxAmp;
+	result *= userSelectedAmp;
 	return result;
 }
 
@@ -80,7 +84,7 @@ void PerlinNoiseGenerator::CreatePerlinNoiseTexture()
 	// Populate the texture data with noise values
 	for (int h = 0; h < height; h++) {
 		for (int w = 0; w < width; w++) {
-			floatData = FractalBrownianMotion(w, h, userSelectedOcativeCount);
+			floatData = FractalBrownianMotion((float)w / width, (float)h / height, userSelectedOcativeCount);
 
 			floatData = (floatData - 0) / (1 - 0);
 
@@ -90,7 +94,7 @@ void PerlinNoiseGenerator::CreatePerlinNoiseTexture()
 	}
 	// Convert float values in textureData to unsigned char for image format (grayscale)
 	for (int i = 0; i < width * height; ++i) {
-		data[i] = static_cast<unsigned char>(std::min(255.0f, std::max(0.0f, 1 - textureData[i] * 255.0f)));
+		data[i] = static_cast<unsigned char>(std::min(255.0f, std::max(0.0f, textureData[i] * 255.0f)));
 	}
 
 	// Testing path
@@ -119,7 +123,7 @@ void PerlinNoiseGenerator::DebuggingOutputToConsole(const int& width, const int&
 	std::cout.precision(2);
 	for (int h = 0; h < height; h++) {
 		for (int w = 0; w < width; w++) {
-			float noiseVal = FractalBrownianMotion(w, h, 2);
+			float noiseVal = FractalBrownianMotion((float)w, (float)h, 2);
 
 			std::cout << std::fixed << noiseVal;
 
@@ -179,13 +183,17 @@ std::array<int,512> PerlinNoiseGenerator::CreatePermutationTable()
 {
 	std::array<int, 512> permTable = {};
 
+	std::array<int, 256> basePermTable;
 	for (int i = 0; i < 256; i++) {
-		permTable[i] = BASE_PERMUTATION_TABLE[i];
-		permTable[i + 256] = BASE_PERMUTATION_TABLE[i];
+		basePermTable[i] = BASE_PERMUTATION_TABLE[i];
 	}
 
+	std::shuffle(basePermTable.begin(), basePermTable.end(), std::default_random_engine(seed));
 
-	std::shuffle(permTable.begin(), permTable.end(), std::default_random_engine(seed));
+	for (int i = 0; i < 256; i++) {
+		permTable[i] = basePermTable[i];
+		permTable[i + 256] = basePermTable[i];
+	}
 
 	return permTable;
 }
@@ -197,7 +205,7 @@ std::array<int,512> PerlinNoiseGenerator::CreatePermutationTable()
 /// <returns></returns>
 glm::vec2 PerlinNoiseGenerator::GetConstantVector(const unsigned int& permTableValue) 
 {
-	const float angle = (permTableValue / 255.f) * 2.f * std::_Pi_val;
+	const float angle = (const float)((permTableValue / 255.f) * 2.f * (float)(std::_Pi_val));
 	return glm::vec2(std::cos(angle), std::sin(angle));
 }
 

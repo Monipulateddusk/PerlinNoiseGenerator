@@ -1,0 +1,4 @@
+# CODEOWNERS file
+
+# This makes 'Monipulateddusk' the default owner for everything in the repo
+*       @Monipulateddusk

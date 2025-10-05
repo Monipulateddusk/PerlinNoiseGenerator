@@ -7,8 +7,11 @@ uniform float randColourX;
 uniform float randColourY;
 uniform float randColourZ;
 
-in vec2 TexCoords;
 uniform sampler2D diffuse;
+
+in GS_OUT{
+	vec2 texCoords;
+}gs_in;
  
 void main()
 {
@@ -16,7 +19,5 @@ void main()
 	vec4 color;
 	color = vec4(randColourX,randColourY,randColourZ,1.0);
 
-    fragcolor = texture(diffuse, TexCoords) + color;
-	
-
+    fragcolor = texture(diffuse, gs_in.texCoords) + color;
 }
