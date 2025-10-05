@@ -43,6 +43,9 @@ void MainGame::initSystems()
 {
 	_gameDisplay.initDisplay(); 
 
+	// Create a basic perlin noise texture on load
+	noiseGen.CreatePerlinNoiseTexture();
+
 	monkey = new GameObject("..\\res\\monkey3.obj", "..\\res\\Water.jpg");
 	monkey->transform.SetPos(glm::vec3(0, 2.5f, 0));
 
@@ -90,7 +93,6 @@ void MainGame::initSystems()
 
 	counter = 0.0f;
 
-	noiseGen.CreatePerlinNoiseTexture();
 	initUI();
 }
 
@@ -155,7 +157,7 @@ void MainGame::initUI()
 
 	/*	Amplitude Slider	*/
 	yOrigin -= 70;
-	std::shared_ptr<UISlider> ampSlider = std::make_shared<UISlider>("Amplitude", 1.0f, 6.0f, true, origin, yOrigin, 400, 20);
+	std::shared_ptr<UISlider> ampSlider = std::make_shared<UISlider>("Amplitude", 1.0f, 2.0f, true, origin, yOrigin, 400, 20);
 	ampSlider->setValue(noiseGen.getAmpCount());
 	ampSlider->addListener([ampSlider, this]()
 		{
@@ -167,7 +169,7 @@ void MainGame::initUI()
 
 	/*	Frequency Slider	*/
 	yOrigin -= 70;
-	std::shared_ptr<UISlider> freqSlider = std::make_shared<UISlider>("Frequency", 1.0f, 3.00f, true, origin, yOrigin, 400, 20);
+	std::shared_ptr<UISlider> freqSlider = std::make_shared<UISlider>("Frequency", 1.0f, 5.00f, true, origin, yOrigin, 400, 20);
 	freqSlider->setValue(noiseGen.getFreqCount());
 	freqSlider->addListener([freqSlider, this]()
 		{

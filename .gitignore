@@ -254,3 +254,10 @@ GitHubVS.sln.DotSettings
 
 # Ignore the output image
 /res/PerlinNoise
+
+# Include our dlls within our output folders
+/Debug/*
+/Debug/*.dll
+!/Debug/.gitkeep
+/Release/*
+/Release/*.dll

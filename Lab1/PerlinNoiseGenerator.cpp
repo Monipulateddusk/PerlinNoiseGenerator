@@ -97,11 +97,6 @@ void PerlinNoiseGenerator::CreatePerlinNoiseTexture()
 		data[i] = static_cast<unsigned char>(std::min(255.0f, std::max(0.0f, textureData[i] * 255.0f)));
 	}
 
-	// Testing path
-	//std::filesystem::path currentPath = std::filesystem::current_path();
-	//std::cout << "Current working directory: " << currentPath << std::endl;
-
-	
 	int res = stbi_write_png("..\\res\\PerlinNoise\\GeneratedPerlinNoise.png", width, height, 1, data, width * 1);
 
 	if (res == 0) {
@@ -180,7 +175,7 @@ std::array<int,512> PerlinNoiseGenerator::CreatePermutationTable()
 {
 	std::array<int, 512> permTable = {};
 
-	std::array<int, 256> basePermTable;
+	std::array<int, 256> basePermTable = {};
 	for (int i = 0; i < 256; i++) {
 		basePermTable[i] = BASE_PERMUTATION_TABLE[i];
 	}

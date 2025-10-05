@@ -2,7 +2,6 @@
 #include "DEFINITIONS.h"
 #include "Texture.h"
 
-
 /// <summary>
 /// This class makes use of this resource: https://rtouti.github.io/graphics/perlin-noise-algorithm
 /// </summary>
@@ -48,7 +47,6 @@ private:
     std::array<int, 512> p_table;
 
     glm::vec2 pre_topLeft, pre_topRight, pre_botLeft, pre_botRight;
-    int pre_aa =0, pre_ab = 0, pre_ba = 0, pre_bb = 0;
     int userSelectedOcativeCount;
     float userSelectedAmp, userSelectedFreq;
 
