@@ -107,9 +107,6 @@ void PerlinNoiseGenerator::CreatePerlinNoiseTexture()
 	if (res == 0) {
 		std::cout << "UNABLE TO WRITE TO FILE" << std::endl;
 	}
-	else {
-		std::cout << "Result of image is: " << res << std::endl;
-	}
 
 	delete[] data;
 }

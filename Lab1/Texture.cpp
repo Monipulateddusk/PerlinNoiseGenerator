@@ -9,7 +9,6 @@ void Texture::init(const std::string& fileName, bool isOneChannel)
 	if (isOneChannel) { channel = 3; }
 	int width, height, numComponents; //width, height, and no of components of image
 
-	std::cout << "Loading image with file path: " << fileName << std::endl;
 	m_ImageData = stbi_load((fileName).c_str(), &width, &height, &numComponents, channel); //load the image and store the data
 
 	if (m_ImageData == NULL)
