@@ -101,5 +101,7 @@ private:
 	MODELDISPLAYED curModelDisplayed;
 
 	unsigned int perlinNoiseSeedValue;
+
+	bool isTyping = false;
 };
 

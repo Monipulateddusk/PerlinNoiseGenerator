@@ -15,6 +15,8 @@ public:
 	float getWidth();
 	float getHeight();
 
+	SDL_Window& getWindow() { return *sdlWindow; }
+
 private:
 
 	void returnError(std::string errorString);

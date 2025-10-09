@@ -99,6 +99,7 @@
     <ClCompile Include="stb_image.c" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="UIButton.cpp" />
+    <ClCompile Include="UIInputField.cpp" />
     <ClCompile Include="UISlider.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -119,6 +120,7 @@
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="transform.h" />
+    <ClInclude Include="UIInputField.h" />
     <ClInclude Include="UISlider.h" />
   </ItemGroup>
   <ItemGroup>

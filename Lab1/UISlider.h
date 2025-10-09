@@ -21,6 +21,7 @@ public:
 	inline float getCurrentValue() { return *currentValue; };
 
 protected:
+	void processInteractEvent();
 	float defaultValue;
 	float sliderMin, sliderMax;
 	std::shared_ptr<float> currentValue;
@@ -30,6 +31,5 @@ protected:
 	std::string sliderLabel;
 	GLuint texture;
 
-	void processInteractEvent();
 };
 
