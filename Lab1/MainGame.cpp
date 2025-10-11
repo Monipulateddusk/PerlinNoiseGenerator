@@ -142,7 +142,6 @@ void MainGame::initUI()
 	int origin = (int)((_gameDisplay.getWidth() / 3) * 1.81f);
 	int yOrigin = (int)(_gameDisplay.getHeight());
 
-
 	/*	Seed Slider	*/
 	yOrigin -= 70;
 	std::shared_ptr<UISlider> seedSlider = std::make_shared<UISlider>("Seed", 1.0f, 10000.0f, false, origin, yOrigin, 400, 20);
@@ -534,7 +533,7 @@ void MainGame::drawBackgroundUI()
 	int origin = (int)((_gameDisplay.getWidth() / 3) * 1.8f);
 	glColor4f(0.3f, 0.3f, 0.3f, 1.f);
 
-	// Base drawing of the button's quad
+	// Base drawing of the BG's quad
 	glBegin(GL_QUADS);
 		glVertex2d(_gameDisplay.getWidth(), 0);
 		glVertex2d(origin, 0);

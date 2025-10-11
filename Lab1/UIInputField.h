@@ -20,10 +20,18 @@ public:
 protected:
 	void processInteractEvent();
 
+	GLuint texture;
+	std::string fieldLabel;
+
+	std::string inputText;
+	std::string left;
+	std::string right;
+	int currentLetter = 0;
+
+
 	bool isSelected;
 	bool isInputFieldActive;
-	std::string fieldLabel;
-	std::shared_ptr<std::string> inputText;
-	GLuint texture;
+
+
 };
 

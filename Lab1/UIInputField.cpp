@@ -17,7 +17,7 @@ UIInputField::~UIInputField()
 
 void UIInputField::setText(std::string v)
 {
-	inputText = std::make_shared<std::string>(v);
+	inputText = v;
 }
 
 bool UIInputField::updateUI(MouseState& state, int screenHeight)
@@ -31,7 +31,12 @@ bool UIInputField::updateUI(MouseState& state, int screenHeight)
 	if (isMouseInside)
 	{
 		if (state.LeftButtonDown) {
-			isSelected = true;
+			if (isSelected == false) {
+				isSelected = true;
+				isInputFieldActive = true;
+				processInteractEvent();
+			}
+
 		}
 	}
 	// Regardless if we are inside or out, if we are selected and there is another left button input, deselect
@@ -39,13 +44,39 @@ bool UIInputField::updateUI(MouseState& state, int screenHeight)
 		if (state.LeftButtonDown) {
 			isSelected = false;
 			isInputFieldActive = false;
+
 		}
 	}
 
 	// If we are selected, enable the input field
-	if (isSelected && !isInputFieldActive) {
-		isInputFieldActive = true;
-		processInteractEvent();
+	if (isInputFieldActive) {
+		SDL_StartTextInput();
+		bool working = SDL_IsTextInputActive();
+
+		std::cout << working << std::endl;
+
+
+		SDL_Event evnt;
+
+		if (SDL_PollEvent(&evnt)) {
+
+			switch (evnt.type) {
+
+				case SDL_TEXTINPUT:
+
+
+					std::cout << evnt.text.text << std::endl;
+
+					break;
+
+				default:
+					break;
+
+			}
+
+		}
+
+
 	}
 
 	return isInputFieldActive;
@@ -75,6 +106,51 @@ void UIInputField::drawUI()
 		glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
 		glLineWidth(2.0f);
 	}
+
+	/*		Text rendering - different to the button.We need two renders.		*/
+	// One that doesn't change saying 'Current Value: ' and the other will be updated by the current value
+
+	int yOffset = height + 10; // Offsetting the text rendering to 10 pixels plus the height of the slider so it sits just above the slider
+	BitmapInfo info = writeText(fieldLabel.c_str(), (width / 2), height, 18);
+	// We can't assume that these aren't already enabled/disabled
+	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // wrap texture outside width
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // wrap texture outside height
+
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // linear filtering for minification (texture is smaller than area)
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // linear filtering for magnifcation (texture is larger)
+
+	/*	Generating the texture image data using the bitmap data for the text rendering */
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, info.b_w, info.b_h, 0, GL_RGBA, GL_UNSIGNED_BYTE, info.bitmap);
+
+	/*	Generate the texture that the text will render onto by taking the texture data | We need to flip it as text for some reason rendered upside down */
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glBegin(GL_QUADS);
+	/*		The text ordinarally is flipped along the Y. Thus, we need to flip the texture coords of the square		*/
+		// Tex coords - Top Left | Vertex origin of 0,0
+		glTexCoord2f(0.0f, 1.0f);
+		glVertex2d(posX, posY + yOffset);
+
+		// Tex coords - Top right | Vertex origin of 1,0
+		glTexCoord2f(1.0f, 1.0f);
+		glVertex2d(posX + info.b_w, posY + yOffset);
+
+		// Tex coords - Bottom Right | Vertex origin of 1,1
+		glTexCoord2f(1.0f, 0.0f);
+		glVertex2d(posX + info.b_w, posY + info.b_h + yOffset);
+
+		// Tex coords - Bottom Left | Vertex origin of 0,1
+		glTexCoord2f(0.0f, 0.0f);
+		glVertex2d(posX, posY + +info.b_h + yOffset);
+
+	glEnd();
+
+
 
 }
 
