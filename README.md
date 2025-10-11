@@ -1,5 +1,4 @@
 # Perlin Noise Generator
-
 This project was created during my 4th Year of University during my **Graphics Programming 2** module. I decided I wanted to create an application allowing users to utilise the algorithm first defined by Ken Perlin and create Perlin Noise images within the local directory.
 I used the libary OpenGL along with the languages: GLSL and C++ to create this program allowing both 3D and 2D art to be rendered to the screen. 
 Creation of a custom-built User Interface system was created making use of Lambda expressions to provide functionality. The User Interface changes the variables used within the FractalBrownianMotion method to change how the Perlin Noise texture is created.
@@ -16,4 +15,6 @@ SDL2.dll Version 2.26.0 found: https://github.com/libsdl-org/SDL/releases?page=6
 
 Download the SDL-devel-2.26.0-mingw.zip and inside that folder would be the .dll inside the bin folder.
 
+### Example
+<img width="1026" height="800" alt="image" src="https://github.com/user-attachments/assets/fa277261-b0f6-49c1-80f5-31469737a2c5" />
 
